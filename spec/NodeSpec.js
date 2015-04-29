@@ -16,7 +16,9 @@ describe("Node", function () {
         expect(node.toString()).toEqual('(p:Person {gender:female})');
         node.addProperty('age', '25');
         expect(node.toString()).toEqual('(p:Person {gender:female, age:25})');
-
+        node = new FactGem.Rexx.Node('x', 'Person');
+        node.addProperty('gender', 'female').addProperty('age', '25'); // test fluid api
+        expect(node.toString()).toEqual('(x:Person {gender:female, age:25})');
     });
 
 });
