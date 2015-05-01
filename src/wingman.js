@@ -1,6 +1,8 @@
 // setup FactGem namespaces
+//noinspection JSUnusedAssignment
 var FactGem = FactGem || {};
-FactGem.Rexx = (function namespace() {
+FactGem.wingman = (function namespace() {
+
     // Node class
     function Node(name, type) {
         this.name = name;
@@ -46,7 +48,9 @@ FactGem.Rexx = (function namespace() {
     Relationship.prototype.toString = function () {
         var value = "";
         if (this.direction.toUpperCase() == "INCOMING") {
-            value = "<-"
+            value = "<-";
+        } else {
+            value = "-";
         }
         value = value + "[" + this.name + ":" + this.type;
         var length = Object.keys(this.properties).length;
@@ -66,7 +70,9 @@ FactGem.Rexx = (function namespace() {
         }
         value = value + "]";
         if (this.direction.toUpperCase() == "OUTGOING") {
-            value = value + "->"
+            value = value + "->";
+        } else {
+            value = value + "-";
         }
         return value;
     };
@@ -77,13 +83,32 @@ FactGem.Rexx = (function namespace() {
         return this;
     };
 
+    // Path class
+    function Path(startNode, relationship, endNode) {
+        this.startNode = startNode;
+        this.relationship = relationship;
+        this.endNode = endNode;
+    }
 
-    // utility functions that will not be publically exposed
+    Path.prototype.toString = function () {
+        var value = this.startNode.toString();
+        if (this.relationship) {
+            value = value + this.relationship.toString();
+            if (this.endNode) { // don't even look for an end node if there is no relationship
+                value = value + this.endNode.toString();
+            }
+        }
+        return value;
+    };
+
+
+    // utility functions that will not be publicly exposed
 
     // Make the classes in the namespace publicly available
     return {
         Node: Node,
-        Relationship: Relationship
+        Relationship: Relationship,
+        Path: Path
     };
 }());
 
