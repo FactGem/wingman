@@ -10,6 +10,12 @@ describe("Node", function () {
 
     });
 
+    it("can have just a name", function () {
+        node = new FactGem.wingman.Node('p');
+        expect(node.toString()).toEqual('(p)');
+
+    });
+
     it("a node containing properties should also product a list of its properties", function () {
         node = new FactGem.wingman.Node('p', 'Person');
         node.addProperty('gender', 'female');

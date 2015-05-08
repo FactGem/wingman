@@ -4,14 +4,27 @@ var FactGem = FactGem || {};
 FactGem.wingman = (function namespace() {
 
     // Node class
+    /**
+     * Creates a new node with a name and a type. Only a name is required.
+     * @param name the name that will be used to identify this node
+     * @param type The type of the node being represented. This parameter is optional.
+     * @constructor
+     */
     function Node(name, type) {
         this.name = name;
         this.type = type;
         this.properties = {};
     }
 
+    /**
+     * Provides a String representation of this node that is compatible with Cypher syntax
+     * @returns {string}
+     */
     Node.prototype.toString = function () {
-        var value = "(" + this.name + ":" + this.type;
+        var value = "(" + this.name;
+        if (this.type) {
+            value = value + ":" + this.type;
+        }
         var length = Object.keys(this.properties).length;
         if (length) {
             value = value + " {";
@@ -31,6 +44,12 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    /**
+     * Adds a property to the node. Properties provide matching at the node level when constructing cypher queries
+     * @param name The name of the node property that should be matched
+     * @param value The value of the property
+     * @returns {Node}
+     */
     Node.prototype.addProperty = function (name, value) {
         this.properties[name] = value;
         return this;
@@ -38,6 +57,13 @@ FactGem.wingman = (function namespace() {
 
     // Relationship class
 
+    /**
+     * Creates a Relationship between two {Node} objects with a name, an optional type and a direction
+     * @param name the name that will be used to identify this relationship
+     * @param type The type of the relationship. Type is optional.
+     * @param direction. The direction of the node. Can be either incoming or outgoing.
+     * @constructor
+     */
     function Relationship(name, type, direction) {
         this.name = name;
         this.type = type;
@@ -45,6 +71,10 @@ FactGem.wingman = (function namespace() {
         this.properties = {};
     }
 
+    /**
+     * Provides a String representation of this Relationship that is compatible with Cypher syntax
+     * @returns {string}
+     */
     Relationship.prototype.toString = function () {
         var value = "";
         if (this.direction.toUpperCase() == "INCOMING") {
@@ -52,7 +82,10 @@ FactGem.wingman = (function namespace() {
         } else {
             value = "-";
         }
-        value = value + "[" + this.name + ":" + this.type;
+        value = value + "[" + this.name;
+        if (this.type) {
+            value = value + ":" + this.type;
+        }
         var length = Object.keys(this.properties).length;
         if (length) {
             value = value + " {";
@@ -77,20 +110,25 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
-
+    /**
+     * Adds a property to the Relationship. Properties provide matching at the Relationship level when constructing cypher queries
+     * @param name The name of the Relationship property that should be matched
+     * @param value The value of the property
+     * @returns {Relationship}
+     */
     Relationship.prototype.addProperty = function (name, value) {
         this.properties[name] = value;
         return this;
     };
 
     // Path class
-    function Path(startNode, relationship, endNode) {
+    function Match(startNode, relationship, endNode) {
         this.startNode = startNode;
         this.relationship = relationship;
         this.endNode = endNode;
     }
 
-    Path.prototype.toString = function () {
+    Match.prototype.toString = function () {
         var value = this.startNode.toString();
         if (this.relationship) {
             value = value + this.relationship.toString();
@@ -101,6 +139,38 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    // Cypher class
+
+    function Cypher() {
+        this.matches = [];
+    }
+
+    Cypher.prototype.addMatch = function (match) {
+        this.matches.push(match);
+        return this;
+    };
+
+    Cypher.prototype.removeMatch = function (match) {
+        var location = -1;
+        for (var index = 0; index < this.matches.length; index++) {
+            if (this.matches[index] === match) {
+                location = index;
+                break;
+            }
+        }
+        if (location > -1) {
+            // remove the item from the matches array and create a new array without the path so we don't end up with a sparse array
+            var newMatches = [];
+            for (index = 0; index < this.matches.length; index++) {
+                if (index != location) {
+                    newMatches.push(this.matches[index]);
+                }
+            }
+            this.matches = newMatches;
+        }
+        return this;
+    };
+
 
     // utility functions that will not be publicly exposed
 
@@ -108,7 +178,8 @@ FactGem.wingman = (function namespace() {
     return {
         Node: Node,
         Relationship: Relationship,
-        Path: Path
+        Match: Match,
+        Cypher: Cypher
     };
 }());
 

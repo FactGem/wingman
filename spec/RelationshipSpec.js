@@ -16,6 +16,12 @@ describe("Relationship", function () {
 
     });
 
+    it("can have just a name and a direction", function () {
+        relationship = new FactGem.wingman.Relationship('r', null, "INCOMING");
+        expect(relationship.toString()).toEqual('<-[r]-');
+
+    });
+
     it("a relationship containing properties should also product a list of its properties", function () {
         relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
         relationship.addProperty('gender', 'female');
