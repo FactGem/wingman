@@ -143,6 +143,7 @@ FactGem.wingman = (function namespace() {
 
     function Cypher() {
         this.matches = [];
+        this.optionalMatches = []
     }
 
     Cypher.prototype.addMatch = function (match) {
@@ -167,6 +168,32 @@ FactGem.wingman = (function namespace() {
                 }
             }
             this.matches = newMatches;
+        }
+        return this;
+    };
+
+    Cypher.prototype.addOptionalMatch = function (match) {
+        this.optionalMatches.push(match);
+        return this;
+    };
+
+    Cypher.prototype.removeOptionalMatch = function (match) {
+        var location = -1;
+        for (var index = 0; index < this.optionalMatches.length; index++) {
+            if (this.optionalMatches[index] === match) {
+                location = index;
+                break;
+            }
+        }
+        if (location > -1) {
+            // remove the item from the matches array and create a new array without the path so we don't end up with a sparse array
+            var newMatches = [];
+            for (index = 0; index < this.optionalMatches.length; index++) {
+                if (index != location) {
+                    newMatches.push(this.optionalMatches[index]);
+                }
+            }
+            this.optionalMatches = newMatches;
         }
         return this;
     };
