@@ -157,8 +157,6 @@ FactGem.wingman = (function namespace() {
      * Creates a new Where clause
      * @param name The variable name. Must match an existing name in the associated Match clause
      * @param property the name of the property on the variable for which the comparison will be performed
-     * @param operator the comparison operator
-     * @param value The value the property should be compared to
      * @constructor
      */
     function Where(name, property) {
@@ -179,7 +177,7 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     * Sets the operator of the {Where} clause to Equals
+     * Sets the operator of the {Where} clause to =
      * @returns {Where}
      */
     Where.prototype.equals = function () {
@@ -188,11 +186,47 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     * Sets the operator of the {Where} clause to lessThan
+     * Sets the operator of the {Where} clause to <
      * @returns {Where}
      */
     Where.prototype.lessThan = function () {
         this.operator = '<';
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to >
+     * @returns {Where}
+     */
+    Where.prototype.greaterThan = function () {
+        this.operator = '>';
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to <>
+     * @returns {Where}
+     */
+    Where.prototype.notEqual = function () {
+        this.operator = '<>';
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to <=
+     * @returns {Where}
+     */
+    Where.prototype.lessThanOrEqualTo = function () {
+        this.operator = '<=';
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to >=
+     * @returns {Where}
+     */
+    Where.prototype.greaterThanOrEqualTo = function () {
+        this.operator = '>=';
         return this;
     };
 
