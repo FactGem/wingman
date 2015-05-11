@@ -202,12 +202,10 @@ FactGem.wingman = (function namespace() {
      *
      */
     Cypher.prototype.toString = function () {
-        var matchCount = 0;
-        var value = '';
+        var value = 'match ';
         for (var index in this.matches) {
-            value = value + 'match ' + this.matches[index];
-            matchCount++;
-            if (matchCount < length) {
+            value = value + this.matches[index];
+            if (index + 1 < this.matches.length) {
                 value = value + ", ";
             }
         }

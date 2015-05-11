@@ -37,6 +37,11 @@ describe("Cypher", function () {
         var match = new FactGem.wingman.Match(node1);
         cypher.addMatch(match);
 
-        expect(cypher.toString()).toBe('match (p:Person)')
+        expect(cypher.toString()).toBe('match (p:Person)');
+
+        var node2 = new FactGem.wingman.Node('pl', 'Place');
+        var match2 = new FactGem.wingman.Match(node2);
+        cypher.addMatch(match2);
+        expect(cypher.toString()).toBe('match (p:Person), (pl:Place)');
     });
 });
