@@ -24,13 +24,13 @@ describe("Relationship", function () {
 
     it("a relationship containing properties should also product a list of its properties", function () {
         relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
-        relationship.addProperty('gender', 'female');
-        expect(relationship.toString()).toEqual('-[p:Person {gender:female}]->');
-        relationship.addProperty('age', '25');
-        expect(relationship.toString()).toEqual('-[p:Person {gender:female, age:25}]->');
+        relationship.addProperty('gender', 'gender1');
+        expect(relationship.toString()).toEqual('-[p:Person {gender:{gender1}}]->');
+        relationship.addProperty('age', 'age1');
+        expect(relationship.toString()).toEqual('-[p:Person {gender:{gender1}, age:{age1}}]->');
         relationship = new FactGem.wingman.Relationship('x', 'Person', "outgoing");
-        relationship.addProperty('gender', 'female').addProperty('age', '25'); // test fluid api
-        expect(relationship.toString()).toEqual('-[x:Person {gender:female, age:25}]->');
+        relationship.addProperty('gender', 'gender1').addProperty('age', 'age1'); // test fluid api
+        expect(relationship.toString()).toEqual('-[x:Person {gender:{gender1}, age:{age1}}]->');
     });
 
 });

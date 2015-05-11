@@ -13,11 +13,11 @@ describe("Match", function () {
 
     it("should produce the start nodes, relationship and end nodes toString when it just contains a full path", function () {
         var startNode = new FactGem.wingman.Node('p', 'Person');
-        startNode.addProperty('city', 'Ada');
+        startNode.addProperty('city', 'city1');
         var endNodeNode = new FactGem.wingman.Node('pl', 'Place');
         var relationship = new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing');
         match = new FactGem.wingman.Match(startNode, relationship, endNodeNode);
-        expect(match.toString()).toEqual('(p:Person {city:Ada})-[r:hasResidentialAddress]->(pl:Place)');
+        expect(match.toString()).toEqual('(p:Person {city:{city1}})-[r:hasResidentialAddress]->(pl:Place)');
     });
 
 });

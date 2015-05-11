@@ -18,13 +18,13 @@ describe("Node", function () {
 
     it("a node containing properties should also product a list of its properties", function () {
         node = new FactGem.wingman.Node('p', 'Person');
-        node.addProperty('gender', 'female');
-        expect(node.toString()).toEqual('(p:Person {gender:female})');
-        node.addProperty('age', '25');
-        expect(node.toString()).toEqual('(p:Person {gender:female, age:25})');
+        node.addProperty('gender', 'gender1');
+        expect(node.toString()).toEqual('(p:Person {gender:{gender1}})');
+        node.addProperty('age', 'age1');
+        expect(node.toString()).toEqual('(p:Person {gender:{gender1}, age:{age1}})');
         node = new FactGem.wingman.Node('x', 'Person');
-        node.addProperty('gender', 'female').addProperty('age', '25'); // test fluid api
-        expect(node.toString()).toEqual('(x:Person {gender:female, age:25})');
+        node.addProperty('gender', 'gender1').addProperty('age', 'age1'); // test fluid api
+        expect(node.toString()).toEqual('(x:Person {gender:{gender1}, age:{age1}})');
     });
 
 });
