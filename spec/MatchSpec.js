@@ -11,6 +11,14 @@ describe("Match", function () {
 
     });
 
+    it("should produce correct cypher when it just contains a start node and a match clause", function () {
+        var node = new FactGem.wingman.Node('p', 'Person');
+        match = new FactGem.wingman.Match(node);
+        match.where('p', 'lastName').equals().value('lastName');
+        expect(match.toString()).toEqual('(p:Person) where p.lastName={lastName}');
+
+    });
+
     it("should produce the start nodes, relationship and end nodes toString when it just contains a full path", function () {
         var startNode = new FactGem.wingman.Node('p', 'Person');
         startNode.addProperty('city', 'city1');

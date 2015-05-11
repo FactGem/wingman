@@ -126,6 +126,7 @@ FactGem.wingman = (function namespace() {
         this.startNode = startNode;
         this.relationship = relationship;
         this.endNode = endNode;
+        this.whereClause = null;
     }
 
     Match.prototype.toString = function () {
@@ -136,7 +137,67 @@ FactGem.wingman = (function namespace() {
                 value = value + this.endNode.toString();
             }
         }
+        if (this.whereClause) {
+            value = value + " " + this.whereClause.toString();
+        }
         return value;
+    };
+
+    /**
+     * Creates a new Where clause that is associated with this match
+     * @param name
+     * @param property
+     */
+    Match.prototype.where = function (name, property) {
+        this.whereClause = new Where(name, property);
+        return this.whereClause;
+    };
+
+    /**
+     * Creates a new Where clause
+     * @param name The variable name. Must match an existing name in the associated Match clause
+     * @param property the name of the property on the variable for which the comparison will be performed
+     * @param operator the comparison operator
+     * @param value The value the property should be compared to
+     * @constructor
+     */
+    function Where(name, property) {
+        this.name = name;
+        this.property = property;
+        this.operator = null;
+        this.valueReference = null;
+    }
+
+    /**
+     *
+     * @param value
+     * @returns {Where}
+     */
+    Where.prototype.value = function (value) {
+        this.valueReference = value;
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to Equals
+     * @returns {Where}
+     */
+    Where.prototype.equals = function () {
+        this.operator = '=';
+        return this;
+    };
+
+    /**
+     * Sets the operator of the {Where} clause to lessThan
+     * @returns {Where}
+     */
+    Where.prototype.lessThan = function () {
+        this.operator = '<';
+        return this;
+    };
+
+    Where.prototype.toString = function () {
+        return 'where ' + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
     };
 
     // Cypher class
@@ -213,52 +274,7 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
-    /**
-     * Creates a new Where clause
-     * @param name The variable name. Must match an existing name in the associated Match clause
-     * @param property the name of the property on the variable for which the comparison will be performed
-     * @param operator the comparison operator
-     * @param value The value the property should be compared to
-     * @constructor
-     */
-    function Where(name, property) {
-        this.name = name;
-        this.property = property;
-        this.operator = null;
-        this.valueReference = null;
-    }
 
-    /**
-     *
-     * @param value
-     * @returns {Where}
-     */
-    Where.prototype.value = function (value) {
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the {Where} clause to Equals
-     * @returns {Where}
-     */
-    Where.prototype.equals = function () {
-        this.operator = '=';
-        return this;
-    };
-
-    /**
-     * Sets the operator of the {Where} clause to lessThan
-     * @returns {Where}
-     */
-    Where.prototype.lessThan = function () {
-        this.operator = '<';
-        return this;
-    };
-
-    Where.prototype.toString = function () {
-        return 'where ' + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
-    };
 
     // utility functions that will not be publicly exposed
 
