@@ -121,7 +121,7 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
-    // Path class
+    // Match class
     function Match(startNode, relationship, endNode) {
         this.startNode = startNode;
         this.relationship = relationship;
@@ -198,6 +198,21 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    /**
+     *
+     */
+    Cypher.prototype.toString = function () {
+        var matchCount = 0;
+        var value = '';
+        for (var index in this.matches) {
+            value = value + 'match ' + this.matches[index];
+            matchCount++;
+            if (matchCount < length) {
+                value = value + ", ";
+            }
+        }
+        return value;
+    };
 
     // utility functions that will not be publicly exposed
 

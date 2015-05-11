@@ -30,4 +30,13 @@ describe("Cypher", function () {
         expect(cypher.optionalMatches.length).toEqual(1);
         expect(cypher.optionalMatches[0]).toBe(match2);
     });
+
+    it("produces valid cypher with basic match clauses", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var node1 = new FactGem.wingman.Node('p', 'Person');
+        var match = new FactGem.wingman.Match(node1);
+        cypher.addMatch(match);
+
+        expect(cypher.toString()).toBe('match (p:Person)')
+    });
 });
