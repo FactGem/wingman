@@ -37,12 +37,12 @@ describe("Cypher", function () {
         var match = new FactGem.wingman.Match(node1);
         cypher.addMatch(match);
 
-        expect(cypher.toString()).toBe('match (p:Person)');
+        expect(cypher.toString()).toBe('match (p:Person);');
 
         var node2 = new FactGem.wingman.Node('pl', 'Place');
         var match2 = new FactGem.wingman.Match(node2);
         cypher.addMatch(match2);
-        expect(cypher.toString()).toBe('match (p:Person), (pl:Place)');
+        expect(cypher.toString()).toBe('match (p:Person), (pl:Place);');
     });
 
     it("produces valid cypher with match and where clauses", function () {
@@ -53,7 +53,7 @@ describe("Cypher", function () {
         var match = new FactGem.wingman.Match(node1, relationship1, node2);
         match.where('pl', 'city').equals('city1');
         cypher.addMatch(match);
-        expect(cypher.toString()).toEqual('match (p:Person)-[hra:hasResidentialAddress]->(pl:Place) where pl.city={city1}')
+        expect(cypher.toString()).toEqual('match (p:Person)-[hra:hasResidentialAddress]->(pl:Place) where pl.city={city1};')
     });
 
     it("produces correct cypher using fluid match syntax", function () {
@@ -61,7 +61,7 @@ describe("Cypher", function () {
             .withStartNode(new FactGem.wingman.Node('p', 'Person'))
             .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
             .withEndNode(new FactGem.wingman.Node('pl', 'Place')));
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place)');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place);');
     });
 
     it("produces correct cypher using fluid match and where syntax", function () {
@@ -72,6 +72,28 @@ describe("Cypher", function () {
             .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
         match.where('pl', 'city').notEqual('city1');
         cypher.addMatch(match);
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1}');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1};');
+    });
+
+    it("produces correct cypher using fluid match, where and single return", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match = new FactGem.wingman.Match()
+            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
+        match.where('pl', 'city').notEqual('city1');
+        cypher.addMatch(match).andReturn().variable('p');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p;');
+    });
+
+    it("produces correct cypher using fluid match, where and multiple returns", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match = new FactGem.wingman.Match()
+            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
+        match.where('pl', 'city').notEqual('city1');
+        cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city;');
     })
 });

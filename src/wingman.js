@@ -337,6 +337,17 @@ FactGem.wingman = (function namespace() {
                 value = value + ", ";
             }
         }
+        if (this.returns.length) {
+            value += ' return ';
+            for (index in this.returns) {
+                //noinspection JSUnfilteredForInLoop
+                value += this.returns[index];
+                if (index + 1 < this.returns.length) {
+                    value = value + ", ";
+                }
+            }
+        }
+        value += ';';
         return value;
     };
 
@@ -345,7 +356,7 @@ FactGem.wingman = (function namespace() {
      * @returns {Return}
      */
     Cypher.prototype.andReturn = function () {
-        var returnClause = new Return();
+        var returnClause = new Return(this);
         this.returns.push(returnClause);
         return returnClause;
     };
@@ -427,12 +438,30 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * Used to indicate if this return clause should only return distince values
+     * @returns {Return}
+     */
+    Return.prototype.distinctValues = function () {
+        this.distinct = true;
+        return this;
+    };
+
+    /**
+     * Used to indicate that this return clause should return a count of the results
+     * @returns {Return}
+     */
+    Return.prototype.countResults = function () {
+        this.count = true;
+        return this;
+    };
+
+    /**
      * Outputs Return as valid cypher
      */
     Return.prototype.toString = function () {
-        var value = 'return ';
+        var value = '';
         if (this.count) { // count statement
-            value += +'count(' + this.variableName;
+            value += 'count(' + this.variableName;
             if (this.propertyName) {
                 value += '.' + this.propertyName;
             }
