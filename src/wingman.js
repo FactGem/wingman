@@ -177,6 +177,7 @@ FactGem.wingman = (function namespace() {
      * Creates a new Where clause that is associated with this match
      * @param name
      * @param property
+     * @returns {Where}
      */
     Match.prototype.where = function (name, property) {
         this.whereClause = new Where(name, property);
@@ -268,6 +269,7 @@ FactGem.wingman = (function namespace() {
         this.orderByProperty = null;
         this.skip = 0;
         this.limit = null;
+        this.returns = [];
     }
 
     Cypher.prototype.addMatch = function (match) {
@@ -338,20 +340,62 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    /**
+     * Adds a new return clause to the Cypher statement
+     * @returns {Return}
+     */
+    Cypher.prototype.andReturn = function () {
+        var returnClause = new Return();
+        this.returns.push(returnClause);
+        return returnClause;
+    };
+
 
     /**
      * Create a new, empty Return clause
      * @constructor
      */
-    function Return() {
-        this.name = null;
-        this.property = null;
+    function Return(cypher) {
+        this.variableName = null;
+        this.propertyName = null;
         this.orderBy = null;
         this.skip = null;
         this.limit = null;
-        this.distince = false;
+        this.distinct = false;
         this.orderDescending = false;
+        this.count = false;
+        this.containingCypher = cypher;
     }
+
+    /**
+     * Sets the variable to be returned
+     * @param variable The variable to be returned
+     * @returns {Return}
+     */
+    Return.prototype.variable = function (variable) {
+        this.variableName = variable;
+        return this;
+    };
+
+    /**
+     * Sets the property of the provided variable to be returned
+     * @param property The property to be returned
+     * @returns {Return}
+     */
+    Return.prototype.property = function (property) {
+        this.propertyName = property;
+        return this;
+    };
+
+    /**
+     * Adds another return clause to the cypher statement
+     * @returns {Return}
+     */
+    Return.prototype.andReturn = function () {
+        var returnClause = new Return();
+        this.containingCypher.returns.push(returnClause);
+        return returnClause;
+    };
 
     /**
      * Sets the property of a node for use in ordering the results in ascending order
@@ -380,6 +424,33 @@ FactGem.wingman = (function namespace() {
     Return.prototype.limit = function (limit) {
         this.limit = limit;
         return this;
+    };
+
+    /**
+     * Outputs Return as valid cypher
+     */
+    Return.prototype.toString = function () {
+        var value = 'return ';
+        if (this.count) { // count statement
+            value += +'count(' + this.variableName;
+            if (this.propertyName) {
+                value += '.' + this.propertyName;
+            }
+            value += ')'
+        } else {
+            if (this.distinct) { // DISTINCT values
+                value += 'distinct ' + this.variableName;
+                if (this.propertyName) {
+                    value += '.' + this.propertyName;
+                }
+            } else { // plain vanilla return
+                value += this.variableName;
+                if (this.propertyName) {
+                    value += '.' + this.propertyName;
+                }
+            }
+        }
+        return value
     };
 
 

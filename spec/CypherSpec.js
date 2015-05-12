@@ -55,4 +55,23 @@ describe("Cypher", function () {
         cypher.addMatch(match);
         expect(cypher.toString()).toEqual('match (p:Person)-[hra:hasResidentialAddress]->(pl:Place) where pl.city={city1}')
     });
+
+    it("produces correct cypher using fluid match syntax", function () {
+        cypher = new FactGem.wingman.Cypher().addMatch(new FactGem.wingman.Match()
+            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place')));
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place)');
+    });
+
+    it("produces correct cypher using fluid match and where syntax", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match = new FactGem.wingman.Match()
+            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
+        match.where('pl', 'city').notEqual('city1');
+        cypher.addMatch(match);
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1}');
+    })
 });
