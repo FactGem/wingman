@@ -129,6 +129,36 @@ FactGem.wingman = (function namespace() {
         this.whereClause = null;
     }
 
+    /**
+     * sets the Start node for the {Match}
+     * @param startnode
+     * @returns {Match}
+     */
+    Match.prototype.withStartNode = function (startnode) {
+        this.startNode = startnode;
+        return this;
+    };
+
+    /**
+     * sets the {Relationship} for the {Match}
+     * @param relationship
+     * @returns {Match}
+     */
+    Match.prototype.withRelationship = function (relationship) {
+        this.relationship = relationship;
+        return this;
+    };
+
+    /**
+     * sets the end node for the {Match}
+     * @param endnode
+     * @returns {Match}
+     */
+    Match.prototype.withEndNode = function (endnode) {
+        this.endNode = endnode;
+        return this;
+    };
+
     Match.prototype.toString = function () {
         var value = this.startNode.toString();
         if (this.relationship) {
@@ -167,21 +197,12 @@ FactGem.wingman = (function namespace() {
     }
 
     /**
-     *
-     * @param value
-     * @returns {Where}
-     */
-    Where.prototype.value = function (value) {
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
      * Sets the operator of the {Where} clause to =
      * @returns {Where}
      */
-    Where.prototype.equals = function () {
+    Where.prototype.equals = function (value) {
         this.operator = '=';
+        this.valueReference = value;
         return this;
     };
 
@@ -189,8 +210,9 @@ FactGem.wingman = (function namespace() {
      * Sets the operator of the {Where} clause to <
      * @returns {Where}
      */
-    Where.prototype.lessThan = function () {
+    Where.prototype.lessThan = function (value) {
         this.operator = '<';
+        this.valueReference = value;
         return this;
     };
 
@@ -198,8 +220,9 @@ FactGem.wingman = (function namespace() {
      * Sets the operator of the {Where} clause to >
      * @returns {Where}
      */
-    Where.prototype.greaterThan = function () {
+    Where.prototype.greaterThan = function (value) {
         this.operator = '>';
+        this.valueReference = value;
         return this;
     };
 
@@ -207,8 +230,9 @@ FactGem.wingman = (function namespace() {
      * Sets the operator of the {Where} clause to <>
      * @returns {Where}
      */
-    Where.prototype.notEqual = function () {
+    Where.prototype.notEqual = function (value) {
         this.operator = '<>';
+        this.valueReference = value;
         return this;
     };
 
@@ -216,8 +240,9 @@ FactGem.wingman = (function namespace() {
      * Sets the operator of the {Where} clause to <=
      * @returns {Where}
      */
-    Where.prototype.lessThanOrEqualTo = function () {
+    Where.prototype.lessThanOrEqualTo = function (value) {
         this.operator = '<=';
+        this.valueReference = value;
         return this;
     };
 
@@ -225,8 +250,9 @@ FactGem.wingman = (function namespace() {
      * Sets the operator of the {Where} clause to >=
      * @returns {Where}
      */
-    Where.prototype.greaterThanOrEqualTo = function () {
+    Where.prototype.greaterThanOrEqualTo = function (value) {
         this.operator = '>=';
+        this.valueReference = value;
         return this;
     };
 
@@ -238,6 +264,10 @@ FactGem.wingman = (function namespace() {
     function Cypher() {
         this.matches = [];
         this.optionalMatches = [];
+        this.orderByName = null;
+        this.orderByProperty = null;
+        this.skip = 0;
+        this.limit = null;
     }
 
     Cypher.prototype.addMatch = function (match) {
@@ -309,6 +339,49 @@ FactGem.wingman = (function namespace() {
     };
 
 
+    /**
+     * Create a new, empty Return clause
+     * @constructor
+     */
+    function Return() {
+        this.name = null;
+        this.property = null;
+        this.orderBy = null;
+        this.skip = null;
+        this.limit = null;
+        this.distince = false;
+        this.orderDescending = false;
+    }
+
+    /**
+     * Sets the property of a node for use in ordering the results in ascending order
+     * @param name the name previously assigned to the node that should now be used for ordering
+     * @param property the property of the identified node to use for ordering results
+     */
+    Return.prototype.orderBy = function (name, property) {
+        this.orderBy = name;
+        return this;
+    };
+
+    /**
+     * Sets the number of results to skip when returning results. Defaults to 0
+     * @param skip
+     */
+    Return.prototype.skip = function (skip) {
+        this.skip = skip;
+        return this;
+    };
+
+    /**
+     * Sets the maximum number of results to return. Is not set by default meaning that all results will be returned
+     * @param limit
+     * @returns {Cypher}
+     */
+    Return.prototype.limit = function (limit) {
+        this.limit = limit;
+        return this;
+    };
+
 
     // utility functions that will not be publicly exposed
 
@@ -318,7 +391,8 @@ FactGem.wingman = (function namespace() {
         Relationship: Relationship,
         Match: Match,
         Where: Where,
-        Cypher: Cypher
+        Cypher: Cypher,
+        Return: Return
     };
 }());
 

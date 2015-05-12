@@ -44,4 +44,15 @@ describe("Cypher", function () {
         cypher.addMatch(match2);
         expect(cypher.toString()).toBe('match (p:Person), (pl:Place)');
     });
+
+    it("produces valid cypher with match and where clauses", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var node1 = new FactGem.wingman.Node('p', 'Person');
+        var relationship1 = new FactGem.wingman.Relationship('hra', 'hasResidentialAddress', 'outgoing');
+        var node2 = new FactGem.wingman.Node('pl', 'Place');
+        var match = new FactGem.wingman.Match(node1, relationship1, node2);
+        match.where('pl', 'city').equals('city1');
+        cypher.addMatch(match);
+        expect(cypher.toString()).toEqual('match (p:Person)-[hra:hasResidentialAddress]->(pl:Place) where pl.city={city1}')
+    });
 });
