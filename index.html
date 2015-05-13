@@ -22,7 +22,7 @@
       <h1>
 <a id="welcome-to-wingman" class="anchor" href="#welcome-to-wingman" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to WINGMAN</h1>
 
-<p>WINGMAN is a Javascript DSL for generating <a href="http://neo4j.com/docs/">cypher</a> queries. It is designed to <strong>only</strong> support querying, not updating, deleting or any other operations that could modify data. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.</p>
+<p>WINGMAN is a Javascript DSL for generating <a href="http://neo4j.com/docs/">cypher</a> queries. It is designed to <strong>only</strong> support querying, not updating, deleting or any other operations that could modify data. Additionally, the system currently outputs all of the queries in parameterized format in order to allow the database the better optimize queries. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.</p>
 
 <h2>
 <a id="design" class="anchor" href="#design" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design</h2>
@@ -60,6 +60,57 @@
 <li><code>withRelationship(relationship)</code></li>
 <li><code>withEndNode(endnode)</code></li>
 <li><code>where(where)</code></li>
+<li><code>toString()</code></li>
+</ul>
+
+<h3>
+<a id="node" class="anchor" href="#node" aria-hidden="true"><span class="octicon octicon-link"></span></a>Node</h3>
+
+<p>Node represents a node in the database. It supports the following methods:</p>
+
+<ul>
+<li><code>addProperty(name,value)</code></li>
+</ul>
+
+<h3>
+<a id="relationship" class="anchor" href="#relationship" aria-hidden="true"><span class="octicon octicon-link"></span></a>Relationship</h3>
+
+<p>Relationship represents a relationship in the database. It supports the following methods:</p>
+
+<ul>
+<li><code>addProperty(name,value)</code></li>
+</ul>
+
+<h3>
+<a id="where" class="anchor" href="#where" aria-hidden="true"><span class="octicon octicon-link"></span></a>Where</h3>
+
+<p>Where represents a clause that defines matching parameters for a match object. It supports the following methods:</p>
+
+<ul>
+<li><code>equals(value)</code></li>
+<li><code>lessThan(value)</code></li>
+<li><code>greaterThan(value)</code></li>
+<li><code>notEqual(value)</code></li>
+<li><code>lessThanOrEqual(value)</code></li>
+<li><code>greaterThanOrEqualTo(value)</code></li>
+<li><code>toString()</code></li>
+</ul>
+
+<h3>
+<a id="return" class="anchor" href="#return" aria-hidden="true"><span class="octicon octicon-link"></span></a>Return</h3>
+
+<p>Return defines what data should be returned from the query. It supports the following methods:</p>
+
+<ul>
+<li><code>variable(variable)</code></li>
+<li><code>property(property)</code></li>
+<li><code>andReturn()</code></li>
+<li><code>orderBy(variable, property)</code></li>
+<li><code>descending()</code></li>
+<li><code>skip(skip)</code></li>
+<li><code>limit(limit)</code></li>
+<li><code>distinctValues()</code></li>
+<li><code>countResults()</code></li>
 <li><code>toString()</code></li>
 </ul>
 
