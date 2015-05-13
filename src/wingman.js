@@ -373,6 +373,16 @@ FactGem.wingman = (function namespace() {
                 value = value + ", ";
             }
         }
+        if (this.optionalMatches.length) {
+            value += ' optional match ';
+        }
+        for (index in this.optionalMatches) {
+            //noinspection JSUnfilteredForInLoop
+            value = value + this.optionalMatches[index];
+            if (index + 1 < this.optionalMatches.length) {
+                value = value + ", ";
+            }
+        }
         if (this.returns.length) {
             value += ' return ';
             for (index in this.returns) {
