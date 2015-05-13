@@ -265,11 +265,12 @@ FactGem.wingman = (function namespace() {
     function Cypher() {
         this.matches = [];
         this.optionalMatches = [];
-        this.orderByName = null;
+        this.orderByVariable = null;
         this.orderByProperty = null;
         this.skip = 0;
         this.limit = null;
         this.returns = [];
+        this.orderDescending = false;
     }
 
     Cypher.prototype.addMatch = function (match) {
@@ -325,7 +326,42 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     *
+     * Sets the number of results to skip before returning data
+     * @param skip
+     * @returns {Cypher}
+     */
+    Cypher.prototype.andSkip = function (skip) {
+        if (skip > 0) {
+            this.skip = skip;
+        }
+        return this;
+    };
+
+    /**
+     * Sets the maximum number of results to return
+     * @param limit
+     * @returns {Cypher}
+     */
+    Cypher.prototype.limitTo = function (limit) {
+        if (limit > 0) {
+            this.limit = limit;
+        }
+        return this;
+    };
+
+
+    /**
+     * Adds a new return clause to the Cypher statement
+     * @returns {Return}
+     */
+    Cypher.prototype.andReturn = function () {
+        var returnClause = new Return(this);
+        this.returns.push(returnClause);
+        return returnClause;
+    };
+
+    /**
+     * Returns a cyhper representation of the current state of this object
      * @returns {string}
      */
     Cypher.prototype.toString = function () {
@@ -347,20 +383,27 @@ FactGem.wingman = (function namespace() {
                 }
             }
         }
+        if (this.orderByVariable) {
+            value += ' order by ' + this.orderByVariable;
+            if (this.orderByProperty) {
+                value += '.' + this.orderByProperty;
+            }
+            if (this.orderDescending) {
+                value += ' desc'
+            }
+        }
+
+        if (this.skip) {
+            value += ' skip ' + this.skip;
+        }
+
+        if (this.limit) {
+            value += ' limit ' + this.limit;
+        }
+
         value += ';';
         return value;
     };
-
-    /**
-     * Adds a new return clause to the Cypher statement
-     * @returns {Return}
-     */
-    Cypher.prototype.andReturn = function () {
-        var returnClause = new Return(this);
-        this.returns.push(returnClause);
-        return returnClause;
-    };
-
 
     /**
      * Create a new, empty Return clause
@@ -369,11 +412,7 @@ FactGem.wingman = (function namespace() {
     function Return(cypher) {
         this.variableName = null;
         this.propertyName = null;
-        this.orderBy = null;
-        this.skip = null;
-        this.limit = null;
         this.distinct = false;
-        this.orderDescending = false;
         this.count = false;
         this.containingCypher = cypher;
     }
@@ -404,41 +443,49 @@ FactGem.wingman = (function namespace() {
      */
     Return.prototype.andReturn = function () {
         var returnClause = new Return();
+        returnClause.containingCypher = this.containingCypher;
         this.containingCypher.returns.push(returnClause);
         return returnClause;
     };
 
     /**
      * Sets the property of a node for use in ordering the results in ascending order
-     * @param name the name previously assigned to the node that should now be used for ordering
+     * @param variable the variable previously assigned that should now be used for ordering
      * @param property the property of the identified node to use for ordering results
      */
-    Return.prototype.orderBy = function (name, property) {
-        this.orderBy = name;
+    Return.prototype.orderBy = function (variable, property) {
+        this.containingCypher.orderByVariable = variable;
+        this.containingCypher.orderByProperty = property;
+        return this;
+    };
+
+    Return.prototype.descending = function () {
+        this.containingCypher.orderDescending = true;
         return this;
     };
 
     /**
      * Sets the number of results to skip when returning results. Defaults to 0
      * @param skip
+     * @returns {Return}
      */
     Return.prototype.skip = function (skip) {
-        this.skip = skip;
+        this.containingCypher.skip = skip;
         return this;
     };
 
     /**
      * Sets the maximum number of results to return. Is not set by default meaning that all results will be returned
      * @param limit
-     * @returns {Cypher}
+     * @returns {Return}
      */
     Return.prototype.limit = function (limit) {
-        this.limit = limit;
+        this.containingCypher.limit = limit;
         return this;
     };
 
     /**
-     * Used to indicate if this return clause should only return distince values
+     * Used to indicate if this return clause should only return distinct values
      * @returns {Return}
      */
     Return.prototype.distinctValues = function () {
