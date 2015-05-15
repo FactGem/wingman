@@ -1,145 +1,176 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html>
   <head>
-    <meta charset="UTF-8">
-    <title>Wingman by FactGem</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+	<title>Wingman - A JavaScript DSL for generating cypher queries</title>
+	<style>
+		html {
+			height:100%;
+		}
+		body {
+			background-color: #13151F;
+			margin:0;
+			height:100%;
+		}
+	</style>
+
+	<!-- copy these lines to your document head: -->
+
+	<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width" />
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedBook';
+        src: url('Wingman.hyperesources/GothamRounded-Book.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Book.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Book.svg#GothamRounded-Book') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedLight';
+        src: url('Wingman.hyperesources/GothamRounded-Light.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Light.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Light.svg#GothamRounded-Light') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedBold';
+        src: url('Wingman.hyperesources/GothamRounded-Bold.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Bold.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Bold.svg#GothamRounded-Bold') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedMedium';
+        src: url('Wingman.hyperesources/GothamRounded-Medium.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Medium.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Medium.svg#GothamRounded-Medium') format('svg');
+    }
+</style>
+
+
+	<!-- end copy -->
+
   </head>
   <body>
-    <section class="page-header">
-      <h1 class="project-name">Wingman</h1>
-      <h2 class="project-tagline">We&#39;ve got you covered</h2>
-      <a href="https://github.com/FactGem/wingman" class="btn">View on GitHub</a>
-      <a href="https://github.com/FactGem/wingman/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/FactGem/wingman/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+	
+	<!-- copy these lines to your document: -->
 
-    <section class="main-content">
-      <h1>
-<a id="welcome-to-wingman" class="anchor" href="#welcome-to-wingman" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to WINGMAN</h1>
+	<div id="wingman_hype_container" style="margin:auto;position:relative;width:100%;height:3470px;overflow:hidden;" aria-live="polite">
+		<script type="text/javascript" charset="utf-8" src="Wingman.hyperesources/wingman_hype_generated_script.js?57843"></script>
+	</div>
 
-<p>WINGMAN is a Javascript DSL for generating <a href="http://neo4j.com/docs/">cypher</a> queries. It is designed to <strong>only</strong> support querying, not updating, deleting or any other operations that could modify data. Additionally, the system currently outputs all of the queries in parameterized format in order to allow the database the better optimize queries. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.</p>
+	<!-- end copy -->
 
-<h2>
-<a id="design" class="anchor" href="#design" aria-hidden="true"><span class="octicon octicon-link"></span></a>Design</h2>
 
-<p>WINGMAN is designed as a <a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent api</a>. Its basic structures primarily mirror those defined by the cypher language and are described below.</p>
+	
 
-<h3>
-<a id="namespace" class="anchor" href="#namespace" aria-hidden="true"><span class="octicon octicon-link"></span></a>Namespace</h3>
 
-<p>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.</p>
+	<!-- text content for search engines: -->
 
-<h3>
-<a id="cypher" class="anchor" href="#cypher" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cypher</h3>
+	<div style="display:none">
 
-<p>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:</p>
+		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
 
-<ul>
-<li><code>addMatch(match)</code></li>
-<li><code>removeMatch(match)</code></li>
-<li><code>addOptionalMatch(match)</code></li>
-<li><code>removeOptionalMatch(match)</code></li>
-<li><code>limitTo(limit)</code></li>
-<li><code>andSkip(skip)</code></li>
-<li><code>andReturn(return)</code></li>
-<li><code>toString()</code></li>
-</ul>
+</div>
+		<div>equals(value)
+lessThan(value)
+greaterThan(value)
+notEqual(value)
+lessThanOrEqual(value)
+greaterThanOrEqualTo(value)
+toString()
+</div>
+		<div>addProperty(name,value)
+</div>
+		<div>DOCUMENTATION</div>
+		<div></div>
+		<div>RELATIONSHIP</div>
+		<div>MATCH</div>
+		<div>addProperty(name,value)
+</div>
+		<div>DESIGN</div>
+		<div>NAMESPACE</div>
+		<div>GITHUB</div>
+		<div>WINGMAN is a Javascript DSL for generating cypher queries. It is designed to only support querying, not updating, deleting or any other operations that could modify data. Additionally, the system currently outputs all of the queries in parameterized format in order to allow the database the better optimize queries. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.
+</div>
+		<div>A JAVASCRIPT DSL FOR GENERATING CYPHER QUERIES</div>
+		<div>WINGMAN is designed as a fluent API. Its basic structures primarily mirror those defined by the cypher language and are described below.
 
-<h3>
-<a id="match" class="anchor" href="#match" aria-hidden="true"><span class="octicon octicon-link"></span></a>Match</h3>
+</div>
+		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
 
-<p>Match describes the patterns and properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node <strong>or</strong> it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match objects. This may change in a future release. It supports the following methods:</p>
+</div>
+		<div>WHAT IS IT?</div>
+		<div>addMatch(match)
+removeMatch(match)
+addOptionalMatch(match)
+removeOptionalMatch(match)
+limitTo(limit)
+andSkip(skip)
+andReturn(return)
+toString()
+</div>
+		<div>withStartNode(startnode)
+withRelationship(relationship)
+withEndNode(endnode)
+where(where)
+toString()
+</div>
+		<div>Node represents a node in the database. It supports the following methods:
 
-<ul>
-<li><code>withStartNode(startnode)</code></li>
-<li><code>withRelationship(relationship)</code></li>
-<li><code>withEndNode(endnode)</code></li>
-<li><code>where(where)</code></li>
-<li><code>toString()</code></li>
-</ul>
+</div>
+		<div>WHAT IS IT</div>
+		<div>CYPHER</div>
+		<div>WHERE</div>
+		<div>RETURN</div>
+		<div>Match describes the patterns and 
+properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match 
+objects. This may change in a future release. It supports the following methods:
+</div>
+		<div>Relationship represents a relationship in the database. It supports the following methods:
 
-<h3>
-<a id="node" class="anchor" href="#node" aria-hidden="true"><span class="octicon octicon-link"></span></a>Node</h3>
+</div>
+		<div>NODE</div>
+		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
 
-<p>Node represents a node in the database. It supports the following methods:</p>
+</div>
+		<div>FEATURES</div>
+		<div>variable(variable)
+property(property)
+andReturn()
+orderBy(variable, property)
+descending()
+skip(skip)
+limit(limit)
+distinctValues()
+countResults()
+toString()
+</div>
+		<div>DOWNLOAD</div>
+		<div>Return defines what data should be returned from the query. It supports the following methods:
 
-<ul>
-<li><code>addProperty(name,value)</code></li>
-</ul>
+</div>
+		<div>Match describes the patterns and properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match objects. This may change in a future release. It supports the following methods:</div>
+		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
+</div>
+		<div>Node represents a node in the database. It supports the following methods:
+</div>
+		<div>Relationship represents a relationship in the database. It supports the following methods:
+</div>
+		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
+</div>
+		<div>Return defines what data should be returned from the query. It supports the following methods:
+</div>
+		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
+</div>
 
-<h3>
-<a id="relationship" class="anchor" href="#relationship" aria-hidden="true"><span class="octicon octicon-link"></span></a>Relationship</h3>
+	</div>
 
-<p>Relationship represents a relationship in the database. It supports the following methods:</p>
-
-<ul>
-<li><code>addProperty(name,value)</code></li>
-</ul>
-
-<h3>
-<a id="where" class="anchor" href="#where" aria-hidden="true"><span class="octicon octicon-link"></span></a>Where</h3>
-
-<p>Where represents a clause that defines matching parameters for a match object. It supports the following methods:</p>
-
-<ul>
-<li><code>equals(value)</code></li>
-<li><code>lessThan(value)</code></li>
-<li><code>greaterThan(value)</code></li>
-<li><code>notEqual(value)</code></li>
-<li><code>lessThanOrEqual(value)</code></li>
-<li><code>greaterThanOrEqualTo(value)</code></li>
-<li><code>toString()</code></li>
-</ul>
-
-<h3>
-<a id="return" class="anchor" href="#return" aria-hidden="true"><span class="octicon octicon-link"></span></a>Return</h3>
-
-<p>Return defines what data should be returned from the query. It supports the following methods:</p>
-
-<ul>
-<li><code>variable(variable)</code></li>
-<li><code>property(property)</code></li>
-<li><code>andReturn()</code></li>
-<li><code>orderBy(variable, property)</code></li>
-<li><code>descending()</code></li>
-<li><code>skip(skip)</code></li>
-<li><code>limit(limit)</code></li>
-<li><code>distinctValues()</code></li>
-<li><code>countResults()</code></li>
-<li><code>toString()</code></li>
-</ul>
-
-<h2>
-<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributors</h2>
-
-<ul>
-<li><a href="https://github.com/crichey" class="user-mention">@crichey</a></li>
-</ul>
-
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/FactGem/wingman">Wingman</a> is maintained by <a href="https://github.com/FactGem">FactGem</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-            <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-59283819-2");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+	<!-- end text content: -->
 
   </body>
 </html>
-
