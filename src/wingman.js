@@ -198,8 +198,8 @@ FactGem.wingman = (function namespace() {
         this.property = property;
         this.operator = null;
         this.valueReference = null;
-        this.parentMatch = match;
-        this.childWhere = null;
+        this.parent = match;
+        this.whereClause = null;
         this.joiningOperator = null;
     }
 
@@ -210,9 +210,9 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.andWhere = function (name, property) {
-        this.childWhere = new Where(name, property, this.parentMatch);
+        this.whereClause = new Where(name, property, this);
         this.joiningOperator = 'AND';
-        return this.childWhere;
+        return this.whereClause;
     };
 
     /**
@@ -222,9 +222,9 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.orWhere = function (name, property) {
-        this.childWhere = new Where(name, property, this.parentMatch);
+        this.whereClause = new Where(name, property, this);
         this.joiningOperator = 'OR';
-        return this.childWhere;
+        return this.whereClause;
     };
 
     /**
@@ -284,13 +284,31 @@ FactGem.wingman = (function namespace() {
     Where.prototype.greaterThanOrEqualTo = function (value) {
         this.operator = '>=';
         this.valueReference = value;
-        return this.parentMatch.whereClause;
+        return this;
     };
 
     Where.prototype.toString = function () {
-        var value = 'where ' + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
-        if (this.childWhere) {
-            var childString = this.childWhere.toString();
+        var firstWhere = this;
+        var foundFirstWhere = false;
+        while (!foundFirstWhere) {
+            if (firstWhere.parent && firstWhere.parent instanceof Where) {
+                firstWhere = firstWhere.parent;
+            } else {
+                foundFirstWhere = true;
+            }
+        }
+
+        return firstWhere.stringValue();
+    };
+
+    /**
+     * Recursive function to return the String value of this {Where} clause. Should only be called internally by to toString() method
+     * @returns {string}
+     */
+    Where.prototype.stringValue = function () {
+        var value = "where " + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+        if (this.whereClause) {
+            var childString = this.whereClause.stringValue();
             value += " " + this.joiningOperator + childString.substr(5, childString.length);
         }
         return value;

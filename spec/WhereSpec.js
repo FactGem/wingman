@@ -46,4 +46,16 @@ describe("Where", function () {
         expect(where.toString()).toEqual('where n.gender={gender} AND n.age>={age}')
     });
 
+    it("should produce valid parameterized cypher for equals operator with another ORed where", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').orWhere('n', 'age').greaterThanOrEqualTo('age');
+        expect(where.toString()).toEqual('where n.gender={gender} OR n.age>={age}')
+    });
+
+    it("should produce valid parameterized cypher for equals operator with another ORed where followed and an AND", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').orWhere('n', 'age').greaterThanOrEqualTo('age').andWhere('n', 'givenName').equals('name');
+        expect(where.toString()).toEqual('where n.gender={gender} OR n.age>={age} AND n.givenName={name}')
+    });
+
 });
