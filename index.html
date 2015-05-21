@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+	<title>Wingman - A JavaScript DSL for generating cypher queries</title>
+	<style>
+		html {
+			height:100%;
+		}
+		body {
+			background-color: #13151F;
+			margin:0;
+			height:100%;
+		}
+	</style>
+
+	<!-- copy these lines to your document head: -->
+
+	<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width" />
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedBook';
+        src: url('Wingman.hyperesources/GothamRounded-Book.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Book.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Book.svg#GothamRounded-Book') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedLight';
+        src: url('Wingman.hyperesources/GothamRounded-Light.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Light.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Light.svg#GothamRounded-Light') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedBold';
+        src: url('Wingman.hyperesources/GothamRounded-Bold.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Bold.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Bold.svg#GothamRounded-Bold') format('svg');
+    }
+</style>
+	<style>
+    @font-face {
+        font-family: 'GothamRoundedMedium';
+        src: url('Wingman.hyperesources/GothamRounded-Medium.woff') format('woff'),
+             url('Wingman.hyperesources/GothamRounded-Medium.ttf') format('truetype'),
+             url('Wingman.hyperesources/GothamRounded-Medium.svg#GothamRounded-Medium') format('svg');
+    }
+</style>
+
+
+	<!-- end copy -->
+
+  </head>
+  <body>
+	
+	<!-- copy these lines to your document: -->
+
+	<div id="wingman_hype_container" style="margin:auto;position:relative;width:100%;height:3470px;overflow:hidden;" aria-live="polite">
+		<script type="text/javascript" charset="utf-8" src="Wingman.hyperesources/wingman_hype_generated_script.js?57843"></script>
+	</div>
+
+	<!-- end copy -->
+
+
+	
+
+
+	<!-- text content for search engines: -->
+
+	<div style="display:none">
+
+		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
+
+</div>
+		<div>equals(value)
+lessThan(value)
+greaterThan(value)
+notEqual(value)
+lessThanOrEqual(value)
+greaterThanOrEqualTo(value)
+toString()
+</div>
+		<div>addProperty(name,value)
+</div>
+		<div>DOCUMENTATION</div>
+		<div></div>
+		<div>RELATIONSHIP</div>
+		<div>MATCH</div>
+		<div>addProperty(name,value)
+</div>
+		<div>DESIGN</div>
+		<div>NAMESPACE</div>
+		<div>GITHUB</div>
+		<div>WINGMAN is a Javascript DSL for generating cypher queries. It is designed to only support querying, not updating, deleting or any other operations that could modify data. Additionally, the system currently outputs all of the queries in parameterized format in order to allow the database the better optimize queries. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.
+</div>
+		<div>A JAVASCRIPT DSL FOR GENERATING CYPHER QUERIES</div>
+		<div>WINGMAN is designed as a fluent API. Its basic structures primarily mirror those defined by the cypher language and are described below.
+
+</div>
+		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
+
+</div>
+		<div>WHAT IS IT?</div>
+		<div>addMatch(match)
+removeMatch(match)
+addOptionalMatch(match)
+removeOptionalMatch(match)
+limitTo(limit)
+andSkip(skip)
+andReturn(return)
+toString()
+</div>
+		<div>withStartNode(startnode)
+withRelationship(relationship)
+withEndNode(endnode)
+where(where)
+toString()
+</div>
+		<div>Node represents a node in the database. It supports the following methods:
+
+</div>
+		<div>WHAT IS IT</div>
+		<div>CYPHER</div>
+		<div>WHERE</div>
+		<div>RETURN</div>
+		<div>Match describes the patterns and 
+properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match 
+objects. This may change in a future release. It supports the following methods:
+</div>
+		<div>Relationship represents a relationship in the database. It supports the following methods:
+
+</div>
+		<div>NODE</div>
+		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
+
+</div>
+		<div>FEATURES</div>
+		<div>variable(variable)
+property(property)
+andReturn()
+orderBy(variable, property)
+descending()
+skip(skip)
+limit(limit)
+distinctValues()
+countResults()
+toString()
+</div>
+		<div>DOWNLOAD</div>
+		<div>Return defines what data should be returned from the query. It supports the following methods:
+
+</div>
+		<div>Match describes the patterns and properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match objects. This may change in a future release. It supports the following methods:</div>
+		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
+</div>
+		<div>Node represents a node in the database. It supports the following methods:
+</div>
+		<div>Relationship represents a relationship in the database. It supports the following methods:
+</div>
+		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
+</div>
+		<div>Return defines what data should be returned from the query. It supports the following methods:
+</div>
+		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
+</div>
+
+	</div>
+
+	<!-- end text content: -->
+
+  </body>
+</html>
