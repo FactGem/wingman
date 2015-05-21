@@ -167,8 +167,9 @@ FactGem.wingman = (function namespace() {
                 value = value + this.endNode.toString();
             }
         }
+
         if (this.whereClause) {
-            value = value + " " + this.whereClause.toString();
+            value += " " + this.whereClause.toString();
         }
         return value;
     };
@@ -180,22 +181,51 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Match.prototype.where = function (name, property) {
-        this.whereClause = new Where(name, property);
-        return this.whereClause;
+        var whereClause = new Where(name, property, this);
+        this.whereClause = whereClause;
+        return whereClause;
     };
 
     /**
      * Creates a new Where clause
      * @param name The variable name. Must match an existing name in the associated Match clause
      * @param property the name of the property on the variable for which the comparison will be performed
+     * @param match The {Match} clause to which this where belongs
      * @constructor
      */
-    function Where(name, property) {
+    function Where(name, property, match) {
         this.name = name;
         this.property = property;
         this.operator = null;
         this.valueReference = null;
+        this.parentMatch = match;
+        this.childWhere = null;
+        this.joiningOperator = null;
     }
+
+    /**
+     * Adds a new {Where} clause that is joined to the previous clause via the AND operator
+     * @param name The variable name. Must match an existing name in the associated Match clause
+     * @param property the name of the property on the variable for which the comparison will be performed
+     * @returns {Where}
+     */
+    Where.prototype.andWhere = function (name, property) {
+        this.childWhere = new Where(name, property, this.parentMatch);
+        this.joiningOperator = 'AND';
+        return this.childWhere;
+    };
+
+    /**
+     * Adds a new {Where} clause that is joined to the previous clause via the OR operator
+     * @param name The variable name. Must match an existing name in the associated Match clause
+     * @param property the name of the property on the variable for which the comparison will be performed
+     * @returns {Where}
+     */
+    Where.prototype.orWhere = function (name, property) {
+        this.childWhere = new Where(name, property, this.parentMatch);
+        this.joiningOperator = 'OR';
+        return this.childWhere;
+    };
 
     /**
      * Sets the operator of the {Where} clause to =
@@ -254,11 +284,16 @@ FactGem.wingman = (function namespace() {
     Where.prototype.greaterThanOrEqualTo = function (value) {
         this.operator = '>=';
         this.valueReference = value;
-        return this;
+        return this.parentMatch.whereClause;
     };
 
     Where.prototype.toString = function () {
-        return 'where ' + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+        var value = 'where ' + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+        if (this.childWhere) {
+            var childString = this.childWhere.toString();
+            value += " " + this.joiningOperator + childString.substr(5, childString.length);
+        }
+        return value;
     };
 
     // Cypher class
@@ -358,6 +393,14 @@ FactGem.wingman = (function namespace() {
         var returnClause = new Return(this);
         this.returns.push(returnClause);
         return returnClause;
+    };
+
+    Cypher.prototype.getParameters = function () {
+        var params = {};
+        for (var index in this.matches) {
+            //noinspection JSUnfilteredForInLoop
+            this.matches[index].getParameters()
+        }
     };
 
     /**
