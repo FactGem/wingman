@@ -147,7 +147,7 @@ describe("Cypher", function () {
         expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} optional match (p:Person)-[r2:hasMailingAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit 100;');
     });
 
-    it("produces correct cypher using fluid match, where and multiple returns, order by, skip and limit", function () {
+    it("produces correct cypher using fluent match, where and multiple returns, order by, skip and limit", function () {
         cypher = new FactGem.wingman.Cypher();
         var match = new FactGem.wingman.Match()
             .withStartNode(new FactGem.wingman.Node('p', 'Person'))
@@ -156,5 +156,16 @@ describe("Cypher", function () {
         match.where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').skip(10).limit(100);
         expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit 100;');
+    });
+
+    it("produces correct cypher using fluent match, multiple where clauses, multiple returns, order by, skip and limit", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match = new FactGem.wingman.Match()
+            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
+        match.where('pl', 'city').notEqual('city1').andWhere('pl', 'county').equals('county');
+        cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').skip(10).limit(100);
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} AND pl.county={county} return p, distinct pl.city order by p.familyName skip 10 limit 100;');
     });
 });

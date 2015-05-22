@@ -35,4 +35,19 @@ describe("Match", function () {
         expect(match.toString()).toEqual('(p:Person)-[r:hasResidentialAddress]->(pl:Place)');
     });
 
+    it("should produce a map of all parameters when there is one where clause", function () {
+        var node = new FactGem.wingman.Node('p', 'Person');
+        match = new FactGem.wingman.Match(node);
+        var where = match.where('n', 'age').greaterThanOrEqualTo('age1');
+        expect(match.parameters()['age']).toEqual('age1');
+    });
+
+    it("should produce a map of all parameters when there are two where clauses", function () {
+        var node = new FactGem.wingman.Node('p', 'Person');
+        match = new FactGem.wingman.Match(node);
+        var where = match.where('n', 'age').greaterThanOrEqualTo('age1').andWhere('n', 'gender').equals('gender1');
+        expect(match.parameters()['age']).toEqual('age1');
+        expect(match.parameters()['gender']).toEqual('gender1');
+    });
+
 });

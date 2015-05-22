@@ -129,6 +129,20 @@ FactGem.wingman = (function namespace() {
         this.whereClause = null;
     }
 
+    Match.prototype.parameters = function () {
+        var params = {};
+        if (this.whereClause) {
+            params[this.whereClause.property] = this.whereClause.valueReference;
+            var childWhere = this.whereClause.whereClause;
+            while (childWhere) {
+                params[childWhere.property] = childWhere.valueReference;
+                childWhere = childWhere.whereClause;
+            }
+        }
+        return params;
+
+    };
+
     /**
      * sets the Start node for the {Match}
      * @param startnode
@@ -314,6 +328,20 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    Where.prototype.params = function () {
+        var params = {};
+        params[this.property] = this.valueReference;
+        if (this.whereClause) {
+            var childparams = this.whereClause.params();
+            for (var property in childparams) {
+                if (childparams.hasOwnProperty(property)) {
+                    params[property] = childparams[property];
+                }
+            }
+        }
+        return params;
+    };
+
     // Cypher class
     function Cypher() {
         this.matches = [];
@@ -417,8 +445,9 @@ FactGem.wingman = (function namespace() {
         var params = {};
         for (var index in this.matches) {
             //noinspection JSUnfilteredForInLoop
-            this.matches[index].getParameters()
+            params = this.matches[index].parameters()
         }
+        return params;
     };
 
     /**
@@ -579,23 +608,21 @@ FactGem.wingman = (function namespace() {
     Return.prototype.toString = function () {
         var value = '';
         if (this.count) { // count statement
-            value += 'count(' + this.variableName;
+            value += 'count(';
+        }
+        if (this.distinct) { // DISTINCT values
+            value += 'distinct ' + this.variableName;
             if (this.propertyName) {
                 value += '.' + this.propertyName;
             }
-            value += ')'
-        } else {
-            if (this.distinct) { // DISTINCT values
-                value += 'distinct ' + this.variableName;
-                if (this.propertyName) {
-                    value += '.' + this.propertyName;
-                }
-            } else { // plain vanilla return
-                value += this.variableName;
-                if (this.propertyName) {
-                    value += '.' + this.propertyName;
-                }
+        } else { // plain vanilla return
+            value += this.variableName;
+            if (this.propertyName) {
+                value += '.' + this.propertyName;
             }
+        }
+        if (this.count) { // count statement
+            value += ')'
         }
         return value
     };
