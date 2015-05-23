@@ -200,22 +200,70 @@ FactGem.wingman = (function namespace() {
         return whereClause;
     };
 
+    Match.prototype.whereHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkHasProperty = true;
+        this.whereClause = whereClause;
+        return whereClause;
+    };
+
+    Match.prototype.whereNotHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkNotHasProperty = true;
+        this.whereClause = whereClause;
+        return whereClause;
+    };
+
     /**
      * Creates a new Where clause
      * @param name The variable name. Must match an existing name in the associated Match clause
      * @param property the name of the property on the variable for which the comparison will be performed
-     * @param match The {Match} clause to which this where belongs
+     * @param parent The {Match} clause to which this where belongs
      * @constructor
      */
-    function Where(name, property, match) {
+    function Where(name, property, parent) {
         this.name = name;
         this.property = property;
         this.operator = null;
         this.valueReference = null;
-        this.parent = match;
+        this.parent = parent;
         this.whereClause = null;
         this.joiningOperator = null;
+        this.checkHasProperty = false;
+        this.checkNotHasProperty = false;
     }
+
+    Where.prototype.andWhereHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkHasProperty = true;
+        this.whereClause = whereClause;
+        this.joiningOperator = 'AND';
+        return this.whereClause;
+    };
+
+    Where.prototype.andWhereNotHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkNotHasProperty = true;
+        this.whereClause = whereClause;
+        this.joiningOperator = 'AND';
+        return this.whereClause;
+    };
+
+    Where.prototype.orWhereHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkHasProperty = true;
+        this.whereClause = whereClause;
+        this.joiningOperator = 'OR';
+        return this.whereClause;
+    };
+
+    Where.prototype.orWhereNotHasProperty = function (name, property) {
+        var whereClause = new Where(name, property, this);
+        whereClause.checkNotHasProperty = true;
+        this.whereClause = whereClause;
+        this.joiningOperator = 'OR';
+        return this.whereClause;
+    };
 
     /**
      * Adds a new {Where} clause that is joined to the previous clause via the AND operator
@@ -320,7 +368,16 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Where.prototype.stringValue = function () {
-        var value = "where " + this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+        var value = "where ";
+        if (this.checkHasProperty) {
+            value += "has(" + this.name + '.' + this.property + ")";
+        } else {
+            if (this.checkNotHasProperty) {
+                value += "NOT has(" + this.name + '.' + this.property + ")";
+            } else {
+                value += this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+            }
+        }
         if (this.whereClause) {
             var childString = this.whereClause.stringValue();
             value += " " + this.joiningOperator + childString.substr(5, childString.length);
@@ -441,11 +498,14 @@ FactGem.wingman = (function namespace() {
         return returnClause;
     };
 
-    Cypher.prototype.getParameters = function () {
+    Cypher.prototype.parameters = function () {
         var params = {};
         for (var index in this.matches) {
             //noinspection JSUnfilteredForInLoop
-            params = this.matches[index].parameters()
+            var childParams = this.matches[index].parameters();
+            for (var param in childParams) {
+                params[param] = childParams[param];
+            }
         }
         return params;
     };

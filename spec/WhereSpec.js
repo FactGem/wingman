@@ -58,4 +58,34 @@ describe("Where", function () {
         expect(where.toString()).toEqual('where n.gender={gender} OR n.age>={age} AND n.givenName={name}')
     });
 
+    it("should produce valid parameterized cypher for hasProperty operator", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.whereHasProperty('n', 'age');
+        expect(where.toString()).toEqual('where has(n.age)')
+    });
+
+    it("should produce valid parameterized cypher for hasProperty operator", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.whereNotHasProperty('n', 'age');
+        expect(where.toString()).toEqual('where NOT has(n.age)')
+    });
+
+    it("should produce valid parameterized cypher for equals operator with ORed has Property", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').orWhereHasProperty('n', 'age');
+        expect(where.toString()).toEqual('where n.gender={gender} OR has(n.age)')
+    });
+
+    it("should produce valid parameterized cypher for equals operator with ANDed has Property", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').andWhereHasProperty('n', 'age');
+        expect(where.toString()).toEqual('where n.gender={gender} AND has(n.age)')
+    });
+
+    it("should produce valid parameterized cypher for equals operator with  ANDed has Property followed and an AND", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').andWhereHasProperty('n', 'age').andWhere('n', 'givenName').equals('name');
+        expect(where.toString()).toEqual('where n.gender={gender} AND has(n.age) AND n.givenName={name}')
+    });
+
 });
