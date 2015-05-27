@@ -1,176 +1,265 @@
 <!DOCTYPE html>
 <html>
-  <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+	<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width">
 	<title>Wingman - A JavaScript DSL for generating cypher queries</title>
-	<style>
-		html {
-			height:100%;
-		}
-		body {
-			background-color: #13151F;
-			margin:0;
-			height:100%;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="assets/css/font.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/main.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="assets/script/main.js"></script>
+</head>
+<body>
+<div class="content">
+	<!--navigation-->
+	<nav>
+		<div class="leftNav">
+			<a href="#what" class="nav">What is it</a>
+			<a href="#features" class="nav">Features</a>
+			<a href="">Documentation</a>
+			<a href="">Github</a>
+		</div>
+		<div class="roundBtn">
+			<a href="">Download</a>
+		</div>
+	</nav>
+	<div class="inner">
+		<!--top section-->
+		<section>
+			<div class="logo">
+				<img src="assets/images/wingman-logo.png"/>
+			</div>
+			<h1>A JAVASCRIPT DSL FOR GENERATING CYPHER QUERIES</h1>
+		</section>
+		<!--top section-->
+		<section>
+			<div class="center" id="what">
+				<h2>What is it?</h2>
 
-	<!-- copy these lines to your document head: -->
+				<p>WINGMAN is a Javascript DSL for generating <a href="http://neo4j.com/docs/stable/cypher-refcard/">cypher
+					queries</a>. It is designed to <b>only</b> support querying, not updating, deleting or any other
+					operations that could modify data. Additionally, the system currently outputs all of the queries in
+					parameterized format in order to allow the database the better optimize queries. This is very much a
+					work in progress. Contributions, forks, comments, etc. are welcome.</p>
 
-	<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width" />
-	<style>
-    @font-face {
-        font-family: 'GothamRoundedBook';
-        src: url('Wingman.hyperesources/GothamRounded-Book.woff') format('woff'),
-             url('Wingman.hyperesources/GothamRounded-Book.ttf') format('truetype'),
-             url('Wingman.hyperesources/GothamRounded-Book.svg#GothamRounded-Book') format('svg');
-    }
-</style>
-	<style>
-    @font-face {
-        font-family: 'GothamRoundedLight';
-        src: url('Wingman.hyperesources/GothamRounded-Light.woff') format('woff'),
-             url('Wingman.hyperesources/GothamRounded-Light.ttf') format('truetype'),
-             url('Wingman.hyperesources/GothamRounded-Light.svg#GothamRounded-Light') format('svg');
-    }
-</style>
-	<style>
-    @font-face {
-        font-family: 'GothamRoundedBold';
-        src: url('Wingman.hyperesources/GothamRounded-Bold.woff') format('woff'),
-             url('Wingman.hyperesources/GothamRounded-Bold.ttf') format('truetype'),
-             url('Wingman.hyperesources/GothamRounded-Bold.svg#GothamRounded-Bold') format('svg');
-    }
-</style>
-	<style>
-    @font-face {
-        font-family: 'GothamRoundedMedium';
-        src: url('Wingman.hyperesources/GothamRounded-Medium.woff') format('woff'),
-             url('Wingman.hyperesources/GothamRounded-Medium.ttf') format('truetype'),
-             url('Wingman.hyperesources/GothamRounded-Medium.svg#GothamRounded-Medium') format('svg');
-    }
-</style>
+				<div class="imgContainer" id="features"><img src="assets/images/features.png"/></div>
+			</div>
+		</section>
+		<!--top section-->
+		<section>
+			<div class="center">
+				<h3>Design</h3>
 
+				<p>WINGMAN is designed as a <a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent API</a>. Its
+					basic structures primarily mirror those defined by the cypher language and are described below.</p>
+			</div>
+			<div class="double">
+				<!--left column-->
+				<div>
+					<div>
+						<h4>Namespace</h4>
 
-	<!-- end copy -->
+						<p>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in
+							the Factgem.wingman namespace.</p>
+					</div>
+					<div>
+						<h4>Match</h4>
 
-  </head>
-  <body>
-	
-	<!-- copy these lines to your document: -->
+						<p>Match describes the patterns and
+							properties of nodes, relationships and paths that will be used to find information.
+							Currently, a match can have just a start node or it can have a starNode, relationship and
+							and endNode. More complex match paths must be represented by multiple match
+							objects. This may change in a future release. It supports the following methods:</p>
 
-	<div id="wingman_hype_container" style="margin:auto;position:relative;width:100%;height:3470px;overflow:hidden;" aria-live="polite">
-		<script type="text/javascript" charset="utf-8" src="Wingman.hyperesources/wingman_hype_generated_script.js?61751"></script>
+						<div class="code">
+							<div>withStartNode(startnode)</div>
+							<div>withRelationship(relationship)</div>
+							<div>withEndNode(endnode)</div>
+							<div>where(where)</div>
+							<div>toString()</div>
+						</div>
+					</div>
+					<div>
+						<h4>Relationship</h4>
+
+						<p>Relationship represents a relationship in the database. It supports the following
+							methods:</p>
+
+						<div class="code">
+							<div>addProperty(name,value)</div>
+						</div>
+					</div>
+					<div>
+						<h4>Return</h4>
+
+						<p>Return defines what data should be returned from the query. It supports the following
+							methods:</p>
+
+						<div class="code">
+							<div>variable(variable)</div>
+							<div>property(property)</div>
+							<div>andReturn()</div>
+							<div>orderBy(variable, property)</div>
+							<div>descending()</div>
+							<div>skip(skip)</div>
+							<div>limit(limit)</div>
+							<div>distinctValues()</div>
+							<div>countResults()</div>
+							<div>toString()</div>
+						</div>
+					</div>
+				</div>
+				<!--right column-->
+				<div>
+					<div>
+						<h4>Cypher</h4>
+
+						<p>This is the top level object that will ultimately produce the desired cypher query. It
+							supports the following methods:</p>
+
+						<div class="code">
+							<div>addMatch(match)</div>
+							<div>removeMatch(match)</div>
+							<div>addOptionalMatch(match)</div>
+							<div>removeOptionalMatch(match)</div>
+							<div>limitTo(limit)</div>
+							<div>andSkip(skip)</div>
+							<div>andReturn(return)</div>
+							<div>toString()</div>
+						</div>
+					</div>
+					<div>
+						<h4>Node</h4>
+
+						<p>Node represents a node in the database. It supports the following methods:</p>
+
+						<div class="code">
+							<div>addProperty(name,value)</div>
+						</div>
+					</div>
+					<div>
+						<h4>Where</h4>
+
+						<p>Where represents a clause that defines matching parameters for a match object. It supports
+							the following methods:</p>
+
+						<div class="code">
+							<div>equals(value)</div>
+							<div>lessThan(value)</div>
+							<div>greaterThan(value)</div>
+							<div>notEqual(value)</div>
+							<div>lessThanOrEqual(value)</div>
+							<div>greaterThanOrEqualTo(value)</div>
+							<div>toString()</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mobile">
+				<div>
+					<h4>Namespace</h4>
+
+					<p>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the
+						Factgem.wingman namespace.</p>
+				</div>
+				<div>
+					<h4>Cypher</h4>
+
+					<p>This is the top level object that will ultimately produce the desired cypher query. It supports
+						the following methods:</p>
+
+					<div class="code">
+						<div>addMatch(match)</div>
+						<div>removeMatch(match)</div>
+						<div>addOptionalMatch(match)</div>
+						<div>removeOptionalMatch(match)</div>
+						<div>limitTo(limit)</div>
+						<div>andSkip(skip)</div>
+						<div>andReturn(return)</div>
+						<div>toString()</div>
+					</div>
+				</div>
+				<div>
+					<h4>Match</h4>
+
+					<p>Match describes the patterns and
+						properties of nodes, relationships and paths that will be used to find information. Currently, a
+						match can have just a start node or it can have a starNode, relationship and and endNode. More
+						complex match paths must be represented by multiple match
+						objects. This may change in a future release. It supports the following methods:</p>
+
+					<div class="code">
+						<div>withStartNode(startnode)</div>
+						<div>withRelationship(relationship)</div>
+						<div>withEndNode(endnode)</div>
+						<div>where(where)</div>
+						<div>toString()</div>
+					</div>
+				</div>
+				<div>
+					<h4>Node</h4>
+
+					<p>Node represents a node in the database. It supports the following methods:</p>
+
+					<div class="code">
+						<div>addProperty(name,value)</div>
+					</div>
+				</div>
+				<div>
+					<h4>Relationship</h4>
+
+					<p>Relationship represents a relationship in the database. It supports the following methods:</p>
+
+					<div class="code">
+						<div>addProperty(name,value)</div>
+					</div>
+				</div>
+				<div>
+					<h4>Return</h4>
+
+					<p>Return defines what data should be returned from the query. It supports the following
+						methods:</p>
+
+					<div class="code">
+						<div>variable(variable)</div>
+						<div>property(property)</div>
+						<div>andReturn()</div>
+						<div>orderBy(variable, property)</div>
+						<div>descending()</div>
+						<div>skip(skip)</div>
+						<div>limit(limit)</div>
+						<div>distinctValues()</div>
+						<div>countResults()</div>
+						<div>toString()</div>
+					</div>
+				</div>
+				<div>
+					<h4>Where</h4>
+
+					<p>Where represents a clause that defines matching parameters for a match object. It supports the
+						following methods:</p>
+
+					<div class="code">
+						<div>equals(value)</div>
+						<div>lessThan(value)</div>
+						<div>greaterThan(value)</div>
+						<div>notEqual(value)</div>
+						<div>lessThanOrEqual(value)</div>
+						<div>greaterThanOrEqualTo(value)</div>
+						<div>toString()</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!--footer-->
+	</div>
+	<footer>
+		<div>
+			<img src="assets/images/madewithlove.png"/>
+		</div>
+	</footer>
 	</div>
 
-	<!-- end copy -->
-
-
-	
-
-
-	<!-- text content for search engines: -->
-
-	<div style="display:none">
-
-		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
-
-</div>
-		<div>equals(value)
-lessThan(value)
-greaterThan(value)
-notEqual(value)
-lessThanOrEqual(value)
-greaterThanOrEqualTo(value)
-toString()
-</div>
-		<div>addProperty(name,value)
-</div>
-		<div>DOCUMENTATION</div>
-		<div></div>
-		<div>RELATIONSHIP</div>
-		<div>MATCH</div>
-		<div>addProperty(name,value)
-</div>
-		<div>DESIGN</div>
-		<div>NAMESPACE</div>
-		<div>GITHUB</div>
-		<div>WINGMAN is a Javascript DSL for generating cypher queries. It is designed to only support querying, not updating, deleting or any other operations that could modify data. Additionally, the system currently outputs all of the queries in parameterized format in order to allow the database the better optimize queries. This is very much a work in progress. Contributions, forks, comments, etc. are welcome.
-</div>
-		<div>A JAVASCRIPT DSL FOR GENERATING CYPHER QUERIES</div>
-		<div>WINGMAN is designed as a fluent API. Its basic structures primarily mirror those defined by the cypher language and are described below.
-
-</div>
-		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
-
-</div>
-		<div>WHAT IS IT?</div>
-		<div>addMatch(match)
-removeMatch(match)
-addOptionalMatch(match)
-removeOptionalMatch(match)
-limitTo(limit)
-andSkip(skip)
-andReturn(return)
-toString()
-</div>
-		<div>withStartNode(startnode)
-withRelationship(relationship)
-withEndNode(endnode)
-where(where)
-toString()
-</div>
-		<div>Node represents a node in the database. It supports the following methods:
-
-</div>
-		<div>WHAT IS IT</div>
-		<div>CYPHER</div>
-		<div>WHERE</div>
-		<div>RETURN</div>
-		<div>Match describes the patterns and 
-properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match 
-objects. This may change in a future release. It supports the following methods:
-</div>
-		<div>Relationship represents a relationship in the database. It supports the following methods:
-
-</div>
-		<div>NODE</div>
-		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
-
-</div>
-		<div>FEATURES</div>
-		<div>variable(variable)
-property(property)
-andReturn()
-orderBy(variable, property)
-descending()
-skip(skip)
-limit(limit)
-distinctValues()
-countResults()
-toString()
-</div>
-		<div>DOWNLOAD</div>
-		<div>Return defines what data should be returned from the query. It supports the following methods:
-
-</div>
-		<div>Match describes the patterns and properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match objects. This may change in a future release. It supports the following methods:</div>
-		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
-</div>
-		<div>Node represents a node in the database. It supports the following methods:
-</div>
-		<div>Relationship represents a relationship in the database. It supports the following methods:
-</div>
-		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
-</div>
-		<div>Return defines what data should be returned from the query. It supports the following methods:
-</div>
-		<div>This is the top level object that will ultimately produce the desired cypher query. It supports the following methods:
-</div>
-
-	</div>
-
-	<!-- end text content: -->
-
-  </body>
+</body>
 </html>
