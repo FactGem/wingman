@@ -207,6 +207,40 @@ footer > div{
 	float:right;
 	margin-top:1.5rem;
 }
+.full{
+	float:left;
+	width:100%;
+}
+.full .center{
+	border:none !important;
+}
+.full h3{
+	margin-top:.5rem;
+	border-top:2px solid rgb(221, 197, 131);
+	padding-top:4rem;
+}
+.full .code{
+	width:100%;
+	box-sizing:border-box;
+}
+.full .code > div{
+	text-align:left;
+}
+.codeTxt{
+	  font-family: 'Andale Mono', Monaco, monospace;
+	  width: 100% !important;
+	  margin: 1rem 0 0 0 !important;
+	  padding: 0 !important;
+	  max-width: 100% !important;
+}
+@media all and (max-width:760px){
+	body,html{
+		font-size: 50%;
+	}
+	nav a {
+		padding:1rem;
+	}
+}
 @media all and (max-width:650px){
 	body,html{
 		font-size: 50%;

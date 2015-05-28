@@ -17,6 +17,7 @@
         <div class="leftNav">
             <a href="#what" class="nav">What is it</a>
             <a href="#features" class="nav">Features</a>
+            <a href="#examples" class="nav">Examples</a>
             <a href="">Documentation</a>
             <a href="https://github.com/FactGem/wingman">Github</a>
         </div>
@@ -56,25 +57,6 @@
 
                 <p>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the
                     <i>Factgem.wingman</i> namespace.</p>
-            </div>
-            <div class="center">
-                <h3>Query Examples</h3>
-
-                <p>Below are some example Cypher queries along with the WINGMAN code to generate them.</p>
-
-            </div>
-            <div class="code">
-                <p>match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p;</p>
-
-                <div>var cypher = new FactGem.wingman.Cypher();<br/>
-                    var match = new FactGem.wingman.Match()<br/>
-                    .withStartNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                    .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress',
-                    'outgoing'))<br/>
-                    .withEndNode(new FactGem.wingman.Node('pl', 'Place'));<br/>
-                    match.where('pl', 'city').notEqual('city1');<br/>
-                    cypher.addMatch(match).andReturn().variable('p');
-                </div>
             </div>
             <div class="double">
                 <!--left column-->
@@ -174,6 +156,19 @@
                             <div>greaterThanOrEqualTo(value)</div>
                             <div>toString()</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="full" id="examples">
+                <div class="center">
+                    <h3>Examples</h3>
+                    <p>Below are some example Cypher queries along with the WINGMAN code to generate them.</p>
+                    <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p;</p>
+                    <div class="code">
+                        <div>var cypher = new FactGem.wingman.Cypher();</div>
+                        <div>var match = new FactGem.wingman.Match().withStartNode(new FactGem.wingman.Node('p', 'Person')).withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress',='outgoing')).withEndNode(new FactGem.wingman.Node('pl', 'Place'));</div>
+                        <div>match.where('pl', 'city').notEqual('city1');</div>
+                        <div>cypher.addMatch(match).andReturn().variable('p');</div>
                     </div>
                 </div>
             </div>
@@ -278,12 +273,13 @@
             </div>
         </section>
         <!--footer-->
-    </div>
-    <footer>
+        <footer>
         <div>
             <img src="assets/images/madewithlove.png"/>
         </div>
     </footer>
+    </div>
+    
 </div>
 
 </body>
