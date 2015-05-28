@@ -245,6 +245,33 @@ footer > div{
 	body,html{
 		font-size: 50%;
 	}
+	.inner section:nth-child(3) {
+	  padding-bottom: 3rem;
+	}
+	h3{
+		width:90%;
+		margin-left:5%;
+		font-size:5rem;
+	}
+	.mobile h3{
+		border-top:2px solid rgb(221, 197, 131);
+		padding-top:3rem;
+
+	}
+	.mobile > div{
+		float:left;
+	}
+	.codeTxt{width:90% !important;margin:0 5% !important;}
+	p.center, .codeTxt{
+		text-align: center;
+	}
+	p.center{
+		padding-bottom:1rem !important;
+		border:none !important;
+	}
+	.full{
+		display:none;
+	}
 	.double,nav{display:none;}
 	.mobile{display:block;}
 	.logo {
@@ -261,7 +288,11 @@ footer > div{
 		padding:.8rem 5%;
 		box-sizing:border-box;
 	}
-	.code{margin:1.5rem 5% 6rem;  width: 85%;}
+	.code{
+		margin: 1.5rem 5% 1rem;
+	  width: 90%;
+	  box-sizing: border-box;
+	}
 	footer > div {
 	  float: none;
 	  margin: 1.5rem auto;

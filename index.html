@@ -270,6 +270,17 @@
                         <div>toString()</div>
                     </div>
                 </div>
+                <div>
+                    <h3>Examples</h3>
+                    <p class="center">Below are some example Cypher queries along with the WINGMAN code to generate them.</p>
+                    <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p;</p>
+                    <div class="code">
+                        <div>var cypher = new FactGem.wingman.Cypher();</div>
+                        <div>var match = new FactGem.wingman.Match().withStartNode(new FactGem.wingman.Node('p', 'Person')).withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress',='outgoing')).withEndNode(new FactGem.wingman.Node('pl', 'Place'));</div>
+                        <div>match.where('pl', 'city').notEqual('city1');</div>
+                        <div>cypher.addMatch(match).andReturn().variable('p');</div>
+                    </div>
+                </div>
             </div>
         </section>
         <!--footer-->
