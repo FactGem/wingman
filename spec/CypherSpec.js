@@ -77,11 +77,11 @@ describe("Cypher", function () {
 
     it("produces correct cypher using fluid match, where and single return", function () {
         cypher = new FactGem.wingman.Cypher();
-        var match = new FactGem.wingman.Match()
-            .withStartNode(new FactGem.wingman.Node('p', 'Person'))
+        var match = new FactGem.wingman.Match();
+        match.withStartNode(new FactGem.wingman.Node('p', 'Person'))
             .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
-            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
-        match.where('pl', 'city').notEqual('city1');
+            .withEndNode(new FactGem.wingman.Node('pl', 'Place'))
+            .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p');
         expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p;');
     });
