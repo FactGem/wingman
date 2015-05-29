@@ -11,13 +11,13 @@ $(document).ready(function(){
 	    return false;
 	});
 	//count examples
-	var exampleCount = ($('.example:last-child').index())+1;
+	var exampleCount = ($('.full .example:last-child').index())+1;
 	var containerWidth = (exampleCount*100)+'%';
 	$('.exampleInside').width(containerWidth);
 	var slideWidth = (100/exampleCount)+'%';
-	$('.example').width(slideWidth);
-	$('.example').css({'box-sizing': 'border-box'});
-    $('.example').css({'padding': '0 1.5rem'})
+	$('.full .example').width(slideWidth);
+	$('.full .example').css({'box-sizing': 'border-box'});
+    $('.full .example').css({'padding': '0 1.5rem'})
 	var counter = 0;
 	$('.exampleInside > .example').each (function() {
 	    $(this).attr('rel',(counter+1));

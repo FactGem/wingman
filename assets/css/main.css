@@ -281,6 +281,7 @@ footer > div{
 	nav a {
 		padding:1rem;
 	}
+	.toggleBtns > div{padding-top:5px;}
 }
 @media all and (max-width:650px){
 	body,html{
@@ -338,5 +339,14 @@ footer > div{
 	  float: none;
 	  margin: 1.5rem auto;
 	  text-align: center;
+	}
+	.code > div{
+		word-break: break-word;
+	}
+	.example{
+		margin-top:25px;
+	}
+	.example:first-child{
+		margin-top:0;
 	}
 }
