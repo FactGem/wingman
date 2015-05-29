@@ -220,8 +220,10 @@ footer > div{
 	padding-top:4rem;
 }
 .full .code{
-	width:100%;
-	box-sizing:border-box;
+	width: 100%;
+  box-sizing: border-box;
+  max-height: 400px;
+  overflow: scroll;
 }
 .full .code > div{
 	text-align:left;
@@ -232,6 +234,45 @@ footer > div{
 	  margin: 1rem 0 0 0 !important;
 	  padding: 0 !important;
 	  max-width: 100% !important;
+}
+.example{float: left;}
+.exampleSlider{
+	width:100%;
+	overflow:hidden;
+}
+.exampleInside{float:left;}
+.toggleBtns{
+	display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+	display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+	display: -ms-flexbox;      /* TWEENER - IE 10 */
+	display: -webkit-flex;     /* NEW - Chrome */
+	display: flex; 
+    justify-content: center;
+    -ms-flex-align:center;
+    -ms-flex-pack:center;
+    -webkit-align-items:center;
+    -webkit-box-align:center;
+    -webkit-box-pack:center;
+    -webkit-justify-content:center;
+    align-items:center;
+}
+.toggleBtns > div{
+	cursor: pointer;
+  width: 30px;
+  height: 30px;
+  margin: 0 5px;
+  color: rgb(221, 197, 131);
+  border: 1px solid rgb(221, 197, 131);
+  font-size: 2rem;
+  font-family: 'gothamBook';
+  padding-top: 3px;
+  background-color: #13151F;
+  box-sizing: border-box;
+}
+.toggleBtns > .active{
+	cursor:default;
+	color:#13151F;
+	background-color:rgb(221,197,131);
 }
 @media all and (max-width:760px){
 	body,html{
