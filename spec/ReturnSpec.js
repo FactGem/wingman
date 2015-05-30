@@ -34,5 +34,8 @@ describe("Return", function () {
         expect(returnClause.toString()).toEqual('count(p)')
     });
 
-
+    it("should produce correct cypher when returning count of distinct variable", function () {
+        returnClause = new FactGem.wingman.Return().countResults().distinctValues().variable('p');
+        expect(returnClause.toString()).toEqual('count(distinct p)')
+    });
 });
