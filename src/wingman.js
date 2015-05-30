@@ -59,8 +59,8 @@ FactGem.wingman = (function namespace() {
 
     /**
      * Creates a Relationship between two {Node} objects with a name, an optional type and a direction
-     * @param name the name that will be used to identify this relationship
-     * @param type The type of the relationship. Type is optional.
+     * @param name the name that will be used to identify this rel
+     * @param type The type of the rel. Type is optional.
      * @param direction. The direction of the node. Can be either incoming or outgoing.
      * @constructor
      */
@@ -123,9 +123,9 @@ FactGem.wingman = (function namespace() {
 
     // Match class
     function Match(startNode, relationship, endNode) {
-        this.startNode = startNode;
-        this.relationship = relationship;
-        this.endNode = endNode;
+        this.start = startNode;
+        this.rel = relationship;
+        this.end = endNode;
         this.whereClause = null;
     }
 
@@ -148,8 +148,8 @@ FactGem.wingman = (function namespace() {
      * @param startnode
      * @returns {Match}
      */
-    Match.prototype.withStartNode = function (startnode) {
-        this.startNode = startnode;
+    Match.prototype.startNode = function (startnode) {
+        this.start = startnode;
         return this;
     };
 
@@ -158,8 +158,8 @@ FactGem.wingman = (function namespace() {
      * @param relationship
      * @returns {Match}
      */
-    Match.prototype.withRelationship = function (relationship) {
-        this.relationship = relationship;
+    Match.prototype.relationship = function (relationship) {
+        this.rel = relationship;
         return this;
     };
 
@@ -168,17 +168,17 @@ FactGem.wingman = (function namespace() {
      * @param endnode
      * @returns {Match}
      */
-    Match.prototype.withEndNode = function (endnode) {
-        this.endNode = endnode;
+    Match.prototype.endNode = function (endnode) {
+        this.end = endnode;
         return this;
     };
 
     Match.prototype.toString = function () {
-        var value = this.startNode.toString();
-        if (this.relationship) {
-            value = value + this.relationship.toString();
-            if (this.endNode) { // don't even look for an end node if there is no relationship
-                value = value + this.endNode.toString();
+        var value = this.start.toString();
+        if (this.rel) {
+            value = value + this.rel.toString();
+            if (this.end) { // don't even look for an end node if there is no rel
+                value = value + this.end.toString();
             }
         }
 

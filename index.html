@@ -114,9 +114,9 @@ andSkip(skip)
 andReturn(return)
 toString()
 </div>
-		<div>withStartNode(startnode)
-withRelationship(relationship)
-withEndNode(endnode)
+		<div>startNode(startnode)
+			relationship(rel)
+			endNode(endnode)
 where(where)
 toString()
 </div>
@@ -128,10 +128,12 @@ toString()
 		<div>WHERE</div>
 		<div>RETURN</div>
 		<div>Match describes the patterns and 
-properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match 
+			properties of nodes, relationships and paths that will be used to find information. Currently, a match can
+			have just a start node or it can have a starNode, rel and and end. More complex match paths must be
+			represented by multiple match 
 objects. This may change in a future release. It supports the following methods:
 </div>
-		<div>Relationship represents a relationship in the database. It supports the following methods:
+		<div>Relationship represents a rel in the database. It supports the following methods:
 
 </div>
 		<div>NODE</div>
@@ -154,12 +156,16 @@ toString()
 		<div>Return defines what data should be returned from the query. It supports the following methods:
 
 </div>
-		<div>Match describes the patterns and properties of nodes, relationships and paths that will be used to find information. Currently, a match can have just a start node or it can have a starNode, relationship and and endNode. More complex match paths must be represented by multiple match objects. This may change in a future release. It supports the following methods:</div>
+		<div>Match describes the patterns and properties of nodes, relationships and paths that will be used to find
+			information. Currently, a match can have just a start node or it can have a starNode, rel and and end. More
+			complex match paths must be represented by multiple match objects. This may change in a future release. It
+			supports the following methods:
+		</div>
 		<div>In order to avoid collisions with other JS libraries, all classes, functions, etc reside in the Factgem.wingman namespace.
 </div>
 		<div>Node represents a node in the database. It supports the following methods:
 </div>
-		<div>Relationship represents a relationship in the database. It supports the following methods:
+		<div>Relationship represents a rel in the database. It supports the following methods:
 </div>
 		<div>Where represents a clause that defines matching parameters for a match object. It supports the following methods:
 </div>

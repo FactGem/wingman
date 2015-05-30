@@ -4,13 +4,13 @@
 describe("Relationship", function () {
     var relationship;
 
-    it("a simple outgoing relationship should produce a String with a name, a colon, the type and direction", function () {
+    it("a simple outgoing rel should produce a String with a name, a colon, the type and direction", function () {
         relationship = new FactGem.wingman.Relationship('r', 'hasResidentialAddress', "OUTGOING");
         expect(relationship.toString()).toEqual('-[r:hasResidentialAddress]->');
 
     });
 
-    it("a simple incoming relationship should produce a String with a name, a colon, the type and direction", function () {
+    it("a simple incoming rel should produce a String with a name, a colon, the type and direction", function () {
         relationship = new FactGem.wingman.Relationship('r', 'hasResidentialAddress', "INCOMING");
         expect(relationship.toString()).toEqual('<-[r:hasResidentialAddress]-');
 
@@ -22,7 +22,7 @@ describe("Relationship", function () {
 
     });
 
-    it("a relationship containing properties should also product a list of its properties", function () {
+    it("a rel containing properties should also product a list of its properties", function () {
         relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
         relationship.addProperty('gender', 'gender1');
         expect(relationship.toString()).toEqual('-[p:Person {gender:{gender1}}]->');

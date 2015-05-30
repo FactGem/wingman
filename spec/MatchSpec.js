@@ -19,7 +19,7 @@ describe("Match", function () {
 
     });
 
-    it("should produce the start nodes, relationship and end nodes toString when it just contains a full path", function () {
+    it("should produce the start nodes, rel and end nodes toString when it just contains a full path", function () {
         var startNode = new FactGem.wingman.Node('p', 'Person');
         startNode.addProperty('city', 'city1');
         var endNodeNode = new FactGem.wingman.Node('pl', 'Place');
@@ -28,10 +28,10 @@ describe("Match", function () {
         expect(match.toString()).toEqual('(p:Person {city:{city1}})-[r:hasResidentialAddress]->(pl:Place)');
     });
 
-    it("should work with the fluid api syntax for setting nodes and relationship", function () {
-        match = new FactGem.wingman.Match().withStartNode(new FactGem.wingman.Node('p', 'Person'))
-            .withRelationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
-            .withEndNode(new FactGem.wingman.Node('pl', 'Place'));
+    it("should work with the fluid api syntax for setting nodes and rel", function () {
+        match = new FactGem.wingman.Match().startNode(new FactGem.wingman.Node('p', 'Person'))
+            .relationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .endNode(new FactGem.wingman.Node('pl', 'Place'));
         expect(match.toString()).toEqual('(p:Person)-[r:hasResidentialAddress]->(pl:Place)');
     });
 
