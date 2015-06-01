@@ -94,7 +94,7 @@ describe("Cypher", function () {
             .endNode(new FactGem.wingman.Node('pl', 'Place'))
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city');
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city;');
     });
 
     it("produces correct cypher using fluid match, where and multiple returns and order by", function () {
@@ -105,7 +105,7 @@ describe("Cypher", function () {
             .endNode(new FactGem.wingman.Node('pl', 'Place'))
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName');
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city order by p.familyName;');
     });
 
     it("produces correct cypher using fluid match, where and multiple returns and order by desc", function () {
@@ -116,7 +116,7 @@ describe("Cypher", function () {
             .endNode(new FactGem.wingman.Node('pl', 'Place'))
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').descending();
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName desc;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city order by p.familyName desc;');
     });
 
     it("produces correct cypher using fluid match, where and multiple returns, order by and skip", function () {
@@ -127,7 +127,7 @@ describe("Cypher", function () {
             .endNode(new FactGem.wingman.Node('pl', 'Place'))
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').skip(10).orderBy('p', 'familyName');
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city order by p.familyName skip 10;');
     });
 
     it("produces correct cypher using match, optional match, where and multiple returns, order by, skip and limit", function () {
@@ -144,7 +144,7 @@ describe("Cypher", function () {
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).addOptionalMatch(optionalMatch).andReturn()
             .variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').skip(10).limit(100);
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} optional match (p:Person)-[r2:hasMailingAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit 100;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} optional match (p:Person)-[r2:hasMailingAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city order by p.familyName skip 10 limit 100;');
     });
 
     it("produces correct cypher using fluid match, where and multiple returns, order by, skip and limit", function () {
@@ -155,6 +155,6 @@ describe("Cypher", function () {
             .endNode(new FactGem.wingman.Node('pl', 'Place'))
             .where('pl', 'city').notEqual('city1');
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').skip(10).limit(100);
-        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit 100;');
+        expect(cypher.toString()).toEqual('match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>{city1} return distinct p, pl.city order by p.familyName skip 10 limit 100;');
     });
 });
