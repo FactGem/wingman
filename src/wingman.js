@@ -1,10 +1,12 @@
 // setup FactGem namespaces
 //noinspection JSUnusedAssignment
+
+/** @namespace **/
 var FactGem = FactGem || {};
 FactGem.wingman = (function namespace() {
 
-    // Node class
     /**
+     * @memberOf wingman
      * Creates a new node with a name and a type. Only a name is required.
      * @param name the name that will be used to identify this node
      * @param type The type of the node being represented. This parameter is optional.
@@ -55,13 +57,12 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
-    // Relationship class
-
     /**
+     * @memberOf wingman
      * Creates a Relationship between two {Node} objects with a name, an optional type and a direction
-     * @param name the name that will be used to identify this rel
-     * @param type The type of the rel. Type is optional.
-     * @param direction. The direction of the node. Can be either incoming or outgoing.
+     * @param name (String} the name that will be used to identify this rel
+     * @param type {String} The type of the rel. Type is optional.
+     * @param direction. {String} The direction of the node. Can be either incoming or outgoing.
      * @constructor
      */
     function Relationship(name, type, direction) {
@@ -409,6 +410,7 @@ FactGem.wingman = (function namespace() {
         this.limit = null;
         this.returns = [];
         this.orderDescending = false;
+        this.distinct = false;
     }
 
     Cypher.prototype.addMatch = function (match) {
@@ -535,6 +537,9 @@ FactGem.wingman = (function namespace() {
         }
         if (this.returns.length) {
             value += ' return ';
+            if (this.distinct) {
+                value += 'distinct ';
+            }
             for (index in this.returns) {
                 //noinspection JSUnfilteredForInLoop
                 value += this.returns[index];
@@ -572,7 +577,6 @@ FactGem.wingman = (function namespace() {
     function Return(cypher) {
         this.variableName = null;
         this.propertyName = null;
-        this.distinct = false;
         this.count = false;
         this.containingCypher = cypher;
     }
@@ -649,7 +653,7 @@ FactGem.wingman = (function namespace() {
      * @returns {Return}
      */
     Return.prototype.distinctValues = function () {
-        this.distinct = true;
+        this.containingCypher.distinct = true;
         return this;
     };
 
@@ -669,22 +673,15 @@ FactGem.wingman = (function namespace() {
         var value = '';
         if (this.count) { // count statement
             value += 'count(';
-        }
-        if (this.distinct) { // DISTINCT values
-            value += 'distinct ' + this.variableName;
-            if (this.propertyName) {
-                value += '.' + this.propertyName;
-            }
-        } else { // plain vanilla return
-            value += this.variableName;
-            if (this.propertyName) {
-                value += '.' + this.propertyName;
-            }
+        }  // plain vanilla return
+        value += this.variableName;
+        if (this.propertyName) {
+            value += '.' + this.propertyName;
         }
         if (this.count) { // count statement
             value += ')'
         }
-        return value
+        return value;
     };
 
 
