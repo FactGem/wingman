@@ -1,10 +1,11 @@
 // setup FactGem namespaces
 //noinspection JSUnusedAssignment
 var FactGem = FactGem || {};
+/** @namespace */
 FactGem.wingman = (function namespace() {
 
-    // Node class
     /**
+     * @memberOf wingman
      * Creates a new node with a name and a type. Only a name is required.
      * @param name the name that will be used to identify this node
      * @param type The type of the node being represented. This parameter is optional.
@@ -55,9 +56,8 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
-    // Relationship class
-
     /**
+     * @memberOf wingman
      * Creates a Relationship between two {Node} objects with a name, an optional type and a direction
      * @param name the name that will be used to identify this rel
      * @param type The type of the rel. Type is optional.
@@ -121,7 +121,14 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
-    // Match class
+    /**
+     * Describes a cypher match clause
+     * @memberOf wingman
+     * @param startNode the starting node. Required
+     * @param relationship optional relationship
+     * @param endNode the end node of the match. required if relationship present
+     * @constructor
+     */
     function Match(startNode, relationship, endNode) {
         this.start = startNode;
         this.rel = relationship;
@@ -129,6 +136,10 @@ FactGem.wingman = (function namespace() {
         this.whereClause = null;
     }
 
+    /**
+     * Constructs an object that encapsulates the properties and values of this match clause and all child match clauses. Should not be called directly
+     * @returns {{}}
+     */
     Match.prototype.parameters = function () {
         var params = {};
         if (this.whereClause) {
@@ -173,6 +184,10 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    /**
+     * Generates the cypher text
+     * @returns {*}
+     */
     Match.prototype.toString = function () {
         var value = this.start.toString();
         if (this.rel) {
@@ -190,8 +205,8 @@ FactGem.wingman = (function namespace() {
 
     /**
      * Creates a new Where clause that is associated with this match
-     * @param name
-     * @param property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
      * @returns {Where}
      */
     Match.prototype.where = function (name, property) {
@@ -200,6 +215,12 @@ FactGem.wingman = (function namespace() {
         return whereClause;
     };
 
+    /**
+     * Create a new where clause to check for the existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Match.prototype.whereHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkHasProperty = true;
@@ -207,6 +228,12 @@ FactGem.wingman = (function namespace() {
         return whereClause;
     };
 
+    /**
+     * Create a new where clause to check for the non-existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Match.prototype.whereNotHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkNotHasProperty = true;
@@ -215,6 +242,7 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * @memberOf wingman
      * Creates a new Where clause
      * @param name The variable name. Must match an existing name in the associated Match clause
      * @param property the name of the property on the variable for which the comparison will be performed
@@ -233,6 +261,12 @@ FactGem.wingman = (function namespace() {
         this.checkNotHasProperty = false;
     }
 
+    /**
+     * Create a new where clause that is joined to the previous clause via the AND operator, to check for the existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Where.prototype.andWhereHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkHasProperty = true;
@@ -241,6 +275,12 @@ FactGem.wingman = (function namespace() {
         return this.whereClause;
     };
 
+    /**
+     * Create a new where clause that is joined to the previous clause via the AND operator, to check for the non-existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Where.prototype.andWhereNotHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkNotHasProperty = true;
@@ -249,6 +289,12 @@ FactGem.wingman = (function namespace() {
         return this.whereClause;
     };
 
+    /**
+     * Create a new where clause that is joined to the previous clause via the OR operator, to check for the existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Where.prototype.orWhereHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkHasProperty = true;
@@ -257,6 +303,12 @@ FactGem.wingman = (function namespace() {
         return this.whereClause;
     };
 
+    /**
+     * Create a new where clause that is joined to the previous clause via the OR operator, to check for the non-existence of a property
+     * @param name the variable name previously bound
+     * @param property the property of the bound variable
+     * @returns {Where}
+     */
     Where.prototype.orWhereNotHasProperty = function (name, property) {
         var whereClause = new Where(name, property, this);
         whereClause.checkNotHasProperty = true;
@@ -349,6 +401,10 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    /**
+     * Generates the cypher text
+     * @returns {string}
+     */
     Where.prototype.toString = function () {
         var firstWhere = this;
         var foundFirstWhere = false;
@@ -385,6 +441,10 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    /**
+     * returns the parameters of the where function. Should not be called directly
+     * @returns {{}}
+     */
     Where.prototype.params = function () {
         var params = {};
         params[this.property] = this.valueReference;
@@ -399,7 +459,11 @@ FactGem.wingman = (function namespace() {
         return params;
     };
 
-    // Cypher class
+    /**
+     * @memberOf wingman
+     * Top level class representing a cypher query
+     * @constructor
+     */
     function Cypher() {
         this.matches = [];
         this.optionalMatches = [];
@@ -411,11 +475,21 @@ FactGem.wingman = (function namespace() {
         this.orderDescending = false;
     }
 
+    /**
+     * Adds a match clause
+     * @param match
+     * @returns {Cypher}
+     */
     Cypher.prototype.addMatch = function (match) {
         this.matches.push(match);
         return this;
     };
 
+    /**
+     * Removes a {match} clause from the query
+     * @param match the clause to be removed
+     * @returns {Cypher}
+     */
     Cypher.prototype.removeMatch = function (match) {
         var location = -1;
         for (var index = 0; index < this.matches.length; index++) {
@@ -437,11 +511,21 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    /**
+     * Adds an OPTIONAL {match} clause
+     * @param match
+     * @returns {Cypher}
+     */
     Cypher.prototype.addOptionalMatch = function (match) {
         this.optionalMatches.push(match);
         return this;
     };
 
+    /**
+     * Removes an optional {match} clause
+     * @param match the {match} clause to be removed
+     * @returns {Cypher}
+     */
     Cypher.prototype.removeOptionalMatch = function (match) {
         var location = -1;
         for (var index = 0; index < this.optionalMatches.length; index++) {
@@ -498,6 +582,10 @@ FactGem.wingman = (function namespace() {
         return returnClause;
     };
 
+    /**
+     * Constructs an object that encapsulates the properties and values of the cypher query
+     * @returns {{}}
+     */
     Cypher.prototype.parameters = function () {
         var params = {};
         for (var index in this.matches) {
@@ -566,6 +654,7 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * @memberOf wingman
      * Create a new, empty Return clause
      * @constructor
      */
@@ -619,6 +708,10 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    /**
+     * Sets the return ordering to descending
+     * @returns {Return}
+     */
     Return.prototype.descending = function () {
         this.containingCypher.orderDescending = true;
         return this;
