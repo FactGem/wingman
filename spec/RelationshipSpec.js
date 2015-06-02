@@ -22,15 +22,26 @@ describe("Relationship", function () {
 
     });
 
-    it("a rel containing properties should also product a list of its properties", function () {
+    it("should produce parameterized properties", function () {
         relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
         relationship.addProperty('gender', 'gender1');
-        expect(relationship.toString()).toEqual('-[p:Person {gender:{gender1}}]->');
+        expect(relationship.toParameterizedString()).toEqual('-[p:Person {gender:{gender1}}]->');
         relationship.addProperty('age', 'age1');
-        expect(relationship.toString()).toEqual('-[p:Person {gender:{gender1}, age:{age1}}]->');
+        expect(relationship.toParameterizedString()).toEqual('-[p:Person {gender:{gender1}, age:{age1}}]->');
         relationship = new FactGem.wingman.Relationship('x', 'Person', "outgoing");
         relationship.addProperty('gender', 'gender1').addProperty('age', 'age1'); // test fluid api
-        expect(relationship.toString()).toEqual('-[x:Person {gender:{gender1}, age:{age1}}]->');
+        expect(relationship.toParameterizedString()).toEqual('-[x:Person {gender:{gender1}, age:{age1}}]->');
+    });
+
+    it("should produce non-parameterized properties", function () {
+        relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
+        relationship.addProperty('gender', 'male');
+        expect(relationship.toString()).toEqual("-[p:Person {gender:'male'}]->");
+        relationship.addProperty('age', 10);
+        expect(relationship.toString()).toEqual("-[p:Person {gender:'male', age:10}]->");
+        relationship = new FactGem.wingman.Relationship('x', 'Person', "outgoing");
+        relationship.addProperty('gender', 'male').addProperty('age', 10); // test fluid api
+        expect(relationship.toString()).toEqual("-[x:Person {gender:'male', age:10}]->");
     });
 
 });
