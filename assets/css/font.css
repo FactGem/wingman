@@ -1,0 +1,29 @@
+
+    @font-face {
+        font-family: 'gothamBook';
+        src: url('../font/GothamRnd-Book.woff') format('woff'),
+             url('../font/GothamRnd-Book.ttf') format('truetype'),
+             url('../font/GothamRnd-Book.svg#GothamRnd-Book') format('svg');
+    }
+
+    @font-face {
+        font-family: 'gothamLight';
+        src: url('../font/GothamRnd-Light.woff') format('woff'),
+             url('../font/GothamRnd-Light.ttf') format('truetype'),
+             url('../font/GothamRnd-Light.svg#GothamRnd-Light') format('svg');
+    }
+
+    @font-face {
+        font-family: 'gothamBold';
+        src: url('../font/GothamRnd-Bold.woff') format('woff'),
+             url('../font/GothamRnd-Bold.ttf') format('truetype'),
+             url('../font/GothamRnd-Bold.svg#GothamRnd-Bold') format('svg');
+    }
+
+    @font-face {
+        font-family: 'gothamMedium';
+        src: url('../font/GothamRnd-Medium.woff') format('woff'),
+             url('../font/GothamRnd-Medium.ttf') format('truetype'),
+             url('../font/GothamRnd-Medium.svg#GothamRnd-Medium') format('svg');
+    }
+
