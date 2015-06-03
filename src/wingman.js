@@ -19,7 +19,35 @@ FactGem.wingman = (function namespace() {
     }
 
     /**
-     * Provides a String representation of this node that is compatible with Cypher syntax
+     * Provides a String representation of this node that is compatible with parameterized Cypher syntax
+     * @returns {string}
+     */
+    Node.prototype.toParameterizedString = function () {
+        var value = "(" + this.name;
+        if (this.type) {
+            value = value + ":" + this.type;
+        }
+        var length = Object.keys(this.properties).length;
+        if (length) {
+            value = value + " {";
+            var propertyCount = 0;
+            for (var property in this.properties) {
+                if (this.properties.hasOwnProperty(property)) {
+                    value = value + property + ":{" + this.properties[property] + '}';
+                    propertyCount++;
+                    if (propertyCount < length) {
+                        value = value + ", ";
+                    }
+                }
+            }
+            value = value + "}";
+        }
+        value = value + ")";
+        return value;
+    };
+
+    /**
+     * Returns the cypher representation of this node
      * @returns {string}
      */
     Node.prototype.toString = function () {
@@ -33,7 +61,11 @@ FactGem.wingman = (function namespace() {
             var propertyCount = 0;
             for (var property in this.properties) {
                 if (this.properties.hasOwnProperty(property)) {
-                    value = value + property + ":{" + this.properties[property] + '}';
+                    if (typeof this.properties[property] == 'string') {
+                        value = value + property + ":'" + this.properties[property] + "'";
+                    } else {
+                        value = value + property + ":" + this.properties[property];
+                    }
                     propertyCount++;
                     if (propertyCount < length) {
                         value = value + ", ";
@@ -73,6 +105,45 @@ FactGem.wingman = (function namespace() {
     }
 
     /**
+     * Provides a parameterized String representation of this Relationship that is compatible with Cypher syntax
+     * @returns {string}
+     */
+    Relationship.prototype.toParameterizedString = function () {
+        var value = "";
+        if (this.direction.toUpperCase() == "INCOMING") {
+            value = "<-";
+        } else {
+            value = "-";
+        }
+        value = value + "[" + this.name;
+        if (this.type) {
+            value = value + ":" + this.type;
+        }
+        var length = Object.keys(this.properties).length;
+        if (length) {
+            value = value + " {";
+            var propertyCount = 0;
+            for (var property in this.properties) {
+                if (this.properties.hasOwnProperty(property)) {
+                    value = value + property + ":{" + this.properties[property] + '}';
+                    propertyCount++;
+                    if (propertyCount < length) {
+                        value = value + ", ";
+                    }
+                }
+            }
+            value = value + "}";
+        }
+        value = value + "]";
+        if (this.direction.toUpperCase() == "OUTGOING") {
+            value = value + "->";
+        } else {
+            value = value + "-";
+        }
+        return value;
+    };
+
+    /**
      * Provides a String representation of this Relationship that is compatible with Cypher syntax
      * @returns {string}
      */
@@ -93,7 +164,11 @@ FactGem.wingman = (function namespace() {
             var propertyCount = 0;
             for (var property in this.properties) {
                 if (this.properties.hasOwnProperty(property)) {
-                    value = value + property + ":{" + this.properties[property] + '}';
+                    if (typeof this.properties[property] == 'string') {
+                        value = value + property + ":'" + this.properties[property] + "'";
+                    } else {
+                        value = value + property + ":" + this.properties[property];
+                    }
                     propertyCount++;
                     if (propertyCount < length) {
                         value = value + ", ";
@@ -199,6 +274,25 @@ FactGem.wingman = (function namespace() {
 
         if (this.whereClause) {
             value += " " + this.whereClause.toString();
+        }
+        return value;
+    };
+
+    /**
+     * Parameterized Cypher text for this Match and contained Match clauses. Should not be directly called.
+     * @returns {string}
+     */
+    Match.prototype.toParameterizedString = function () {
+        var value = this.start.toParameterizedString();
+        if (this.rel) {
+            value = value + this.rel.toString();
+            if (this.end) { // don't even look for an end node if there is no rel
+                value = value + this.end.toParameterizedString();
+            }
+        }
+
+        if (this.whereClause) {
+            value += " " + this.whereClause.toParameterizedString();
         }
         return value;
     };
@@ -406,6 +500,24 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * Generates the parameterized cypher for this where clause and all parent where clauses
+     * @returns {string}
+     */
+    Where.prototype.toParameterizedString = function () {
+        var firstWhere = this;
+        var foundFirstWhere = false;
+        while (!foundFirstWhere) {
+            if (firstWhere.parent && firstWhere.parent instanceof Where) {
+                firstWhere = firstWhere.parent;
+            } else {
+                foundFirstWhere = true;
+            }
+        }
+
+        return firstWhere.parameterizedStringValue();
+    };
+
+    /**
      * Generates the cypher for this where clause and all parent where clauses
      * @returns {string}
      */
@@ -424,10 +536,10 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     * Recursive function to return the String value of this {Where} clause. Should only be called internally by to toString() method
+     * Recursive function to return the parameterized String value of this {Where} clause. Should only be called internally by to toString() method
      * @returns {string}
      */
-    Where.prototype.stringValue = function () {
+    Where.prototype.parameterizedStringValue = function () {
         var value = "where ";
         if (this.checkHasProperty) {
             value += "has(" + this.name + '.' + this.property + ")";
@@ -439,8 +551,34 @@ FactGem.wingman = (function namespace() {
             }
         }
         if (this.whereClause) {
+            var childString = this.whereClause.parameterizedStringValue();
+            value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
+        }
+        return value;
+    };
+
+    /**
+     * Recursive function to return the String value of this {Where} clause. Should only be called internally by to toString() method
+     * @returns {string}
+     */
+    Where.prototype.stringValue = function () {
+        var value = "where ";
+        if (this.checkHasProperty) {
+            value += "has(" + this.name + '.' + this.property + ")";
+        } else {
+            if (this.checkNotHasProperty) {
+                value += "NOT has(" + this.name + '.' + this.property + ")";
+            } else {
+                if (typeof this.valueReference == 'string') {
+                    value += this.name + '.' + this.property + this.operator + "'" + this.valueReference + "'";
+                } else {
+                    value += this.name + '.' + this.property + this.operator + this.valueReference;
+                }
+            }
+        }
+        if (this.whereClause) {
             var childString = this.whereClause.stringValue();
-            value += " " + this.joiningOperator + childString.substr(5, childString.length);
+            value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
         }
         return value;
     };
@@ -604,6 +742,64 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * Returns a parameterized cyhper representation of the current state of this object
+     * @returns {string}
+     */
+    Cypher.prototype.toParameterizedString = function () {
+        var value = 'match ';
+        for (var index in this.matches) {
+            //noinspection JSUnfilteredForInLoop
+            value = value + this.matches[index].toParameterizedString();
+            if (index + 1 < this.matches.length) {
+                value = value + ", ";
+            }
+        }
+        if (this.optionalMatches.length) {
+            value += ' optional match ';
+        }
+        for (index in this.optionalMatches) {
+            //noinspection JSUnfilteredForInLoop
+            value = value + this.optionalMatches[index].toParameterizedString();
+            if (index + 1 < this.optionalMatches.length) {
+                value = value + ", ";
+            }
+        }
+        if (this.returns.length) {
+            value += ' return ';
+            if (this.distinct) {
+                value += 'distinct ';
+            }
+            for (index in this.returns) {
+                //noinspection JSUnfilteredForInLoop
+                value += this.returns[index];
+                if (index + 1 < this.returns.length) {
+                    value = value + ", ";
+                }
+            }
+        }
+        if (this.orderByVariable) {
+            value += ' order by ' + this.orderByVariable;
+            if (this.orderByProperty) {
+                value += '.' + this.orderByProperty;
+            }
+            if (this.orderDescending) {
+                value += ' desc'
+            }
+        }
+
+        if (this.skip) {
+            value += ' skip ' + this.skip;
+        }
+
+        if (this.limit) {
+            value += ' limit ' + this.limit;
+        }
+
+        value += ';';
+        return value;
+    };
+
+    /**
      * Returns a cyhper representation of the current state of this object
      * @returns {string}
      */
@@ -660,6 +856,7 @@ FactGem.wingman = (function namespace() {
         value += ';';
         return value;
     };
+
 
     /**
      * @memberof wingman
