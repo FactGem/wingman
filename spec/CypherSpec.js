@@ -262,4 +262,12 @@ describe("Cypher", function () {
         cypher.addMatch(match).andReturn().variable('p').andReturn().distinctValues().variable('pl').property('city').orderBy('p', 'familyName').skip(10).limit(100);
         expect(cypher.toString()).toEqual("match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city<>'westminster' return distinct p, pl.city order by p.familyName skip 10 limit 100;");
     });
+
+    it("produces correct cypher when checking for existence of a property", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match = new FactGem.wingman.Match();
+        match.startNode(new FactGem.wingman.Node('p', 'Person')).whereHasProperty('p', 'gender');
+        cypher.addMatch(match).andReturn().variable('p');
+        expect(cypher.toString()).toEqual("match (p:Person) where has(p.gender) return p;");
+    });
 });
