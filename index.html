@@ -43,7 +43,7 @@
                     queries</a>. It is designed to <b>only</b> support querying, not updating, deleting or any other
                     operations that could modify data. WINGMAN supports the generation of standard (non-parameterized)
                     as well as
-                    parameterized cypher in order to allow the database the better optimize queries. This is very much a
+                    parameterized cypher in order to allow the database to better optimize queries. This is very much a
                     work in progress. Contributions, forks, comments, etc. are welcome. Bug and features requests are
                     tracked on the
                     <a target="_blank" href="https://github.com/FactGem/wingman/issues">issues</a> page. </p>
@@ -73,7 +73,7 @@
                         <p>Match describes the patterns and
                             properties of nodes, relationships and paths that will be used to find information.
                             Currently, a
-                            match can have just a start node or it can have a starNode, relationship and and endNode.
+                            match can have just a start node or it can have a startNode, relationship and endNode.
                             More
                             complex match paths must be represented by multiple match
                             objects. This may change in a future release.</p>
@@ -87,7 +87,7 @@
                     <div>
                         <h4>Return</h4>
 
-                        <p>Return defines what data should be returned from the query and if only distince results
+                        <p>Return defines what data should be returned from the query and if only distinct results
                             should be returned. Return clauses can
                             also define ordering and support pagination of results.</p>
 
@@ -98,7 +98,7 @@
                     <div>
                         <h4>Cypher</h4>
 
-                        <p>This is the top level object that will ultimately produce the desired cypher query. The <i>toString()</i>
+                        <p>This is the top level object that will ultimately produce the desired cypher query. The <i>toString</i>
                             method produces standard cypher text and the <i>toParameterized</i> method produces
                             parameterized cypher.
                             The <i>parameters</i> method prodcues an object that contains all of the parameters and
@@ -146,27 +146,20 @@
                                 </div>
                             </div>
                             <div class="example">
-                                <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
+                                <p class="codeTxt">match (p:Person) where has(p.gender) return p;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
                                     <div>var match = new FactGem.wingman.Match();</div>
                                     <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                        .relationship(<br/>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
-                                        'hasResidentialAddress', 'outgoing'))<br/>
-                                        .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('westminster');<br/><br/>
-                                        cypher.addMatch(match).andReturn().variable('p')<br/>
-                                        .andReturn().distinctValues().variable('pl').property('city')<br/>
-                                        .skip(10).orderBy('p', 'familyName');
+                                        .whereHasProperty('p','gender');<br/>
+                                        cypher.addMatch(match).andReturn().variable('p');
                                     </div>
                                 </div>
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
+                                    pl.city<>'westminster' return distinct p, pl.city order by p.familyName skip 10;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -187,7 +180,7 @@
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10
+                                    pl.city<>'westminster' return distinct p, pl.city order by p.familyName skip 10
                                     limit
                                     100;</p>
 
@@ -210,7 +203,7 @@
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    p.age>=30 return p, distinct pl.city order by p.familyName skip 10 limit
+                                    p.age>=30 return distinct p, pl.city order by p.familyName skip 10 limit
                                     100;</p>
 
                                 <div class="code">
@@ -359,27 +352,20 @@
                         </div>
                     </div>
                     <div class="example">
-                        <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
+                        <p class="codeTxt">match (p:Person) where has(p.gender) return p;</p>
 
                         <div class="code">
                             <div>var cypher = new FactGem.wingman.Cypher();</div>
                             <div>var match = new FactGem.wingman.Match();</div>
                             <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                .relationship(<br/>
-                                &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
-                                'hasResidentialAddress', 'outgoing'))<br/>
-                                .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                .where('pl', 'city').notEqual('westminster');<br/><br/>
-                                cypher.addMatch(match).andReturn().variable('p')<br/>
-                                .andReturn().distinctValues().variable('pl').property('city')<br/>
-                                .skip(10).orderBy('p', 'familyName');
+                                .whereHasProperty('p','gender');<br/>
+                                cypher.addMatch(match).andReturn().variable('p');
                             </div>
                         </div>
                     </div>
                     <div class="example">
                         <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
+                            pl.city<>'westminster' return distinct p, pl.city order by p.familyName skip 10;</p>
 
                         <div class="code">
                             <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -400,7 +386,7 @@
                     </div>
                     <div class="example">
                         <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10
+                            pl.city<>'westminster' return distinct p, pl.city order by p.familyName skip 10
                             limit
                             100;</p>
 
@@ -423,7 +409,7 @@
                     </div>
                     <div class="example">
                         <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            p.age>=30 return p, distinct pl.city order by p.familyName skip 10 limit
+                            p.age>=30 return distinct p, pl.city order by p.familyName skip 10 limit
                             100;</p>
 
                         <div class="code">
