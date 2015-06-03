@@ -41,8 +41,9 @@
                 <p>WINGMAN is a Javascript DSL for generating <a href="http://neo4j.com/docs/stable/cypher-refcard/"
                                                                  target="_blank">cypher
                     queries</a>. It is designed to <b>only</b> support querying, not updating, deleting or any other
-                    operations that could modify data. Additionally, the system currently outputs all of the queries in
-                    parameterized format in order to allow the database the better optimize queries. This is very much a
+                    operations that could modify data. WINGMAN supports the generation of standard (non-parameterized)
+                    as well as
+                    parameterized cypher in order to allow the database the better optimize queries. This is very much a
                     work in progress. Contributions, forks, comments, etc. are welcome. Bug and features requests are
                     tracked on the
                     <a target="_blank" href="https://github.com/FactGem/wingman/issues">issues</a> page. </p>
@@ -75,44 +76,21 @@
                             match can have just a start node or it can have a starNode, relationship and and endNode.
                             More
                             complex match paths must be represented by multiple match
-                            objects. This may change in a future release. It supports the following methods:</p>
-
-                        <div class="code">
-                            <div>startNode(startnode)</div>
-                            <div>relationship(relationship)</div>
-                            <div>endNode(endnode)</div>
-                            <div>where(where)</div>
-                            <div>toString()</div>
-                        </div>
+                            objects. This may change in a future release.</p>
                     </div>
                     <div>
                         <h4>Relationship</h4>
 
-                        <p>Relationship represents a relationship in the database. It supports the following
-                            methods:</p>
+                        <p>Relationship represents a relationship in the database. </p>
 
-                        <div class="code">
-                            <div>addProperty(name,value)</div>
-                        </div>
                     </div>
                     <div>
                         <h4>Return</h4>
 
-                        <p>Return defines what data should be returned from the query. It supports the following
-                            methods:</p>
+                        <p>Return defines what data should be returned from the query and if only distince results
+                            should be returned. Return clauses can
+                            also define ordering and support pagination of results.</p>
 
-                        <div class="code">
-                            <div>variable(variable)</div>
-                            <div>property(property)</div>
-                            <div>andReturn()</div>
-                            <div>orderBy(variable, property)</div>
-                            <div>descending()</div>
-                            <div>skip(skip)</div>
-                            <div>limit(limit)</div>
-                            <div>distinctValues()</div>
-                            <div>countResults()</div>
-                            <div>toString()</div>
-                        </div>
                     </div>
                 </div>
                 <!--right column-->
@@ -121,48 +99,23 @@
                         <h4>Cypher</h4>
 
                         <p>This is the top level object that will ultimately produce the desired cypher query. The <i>toString()</i>
-                            method produces the parameterized cypher text
-                            and the <i>parameters</i> method prodcues an object that contains all of the parameters and
-                            their values.
-                            It supports the following methods:</p>
+                            method produces standard cypher text and the <i>toParameterized</i> method produces
+                            parameterized cypher.
+                            The <i>parameters</i> method prodcues an object that contains all of the parameters and
+                            their values, typically for use when you are using parameterized cypher.</p>
 
-                        <div class="code">
-                            <div>addMatch(match)</div>
-                            <div>removeMatch(match)</div>
-                            <div>addOptionalMatch(match)</div>
-                            <div>removeOptionalMatch(match)</div>
-                            <div>limitTo(limit)</div>
-                            <div>andSkip(skip)</div>
-                            <div>andReturn(return)</div>
-                            <div>parameters()</div>
-                            <div>toString()</div>
-                        </div>
                     </div>
                     <div>
                         <h4>Node</h4>
 
-                        <p>Node represents a node in the database. It supports the following methods:</p>
-
-                        <div class="code">
-                            <div>addProperty(name,value)</div>
-                        </div>
+                        <p>Node represents a node in the database.
                     </div>
                     <div>
                         <h4>Where</h4>
 
                         <p>Where represents a clause that defines matching parameters for a match object. It supports
-                            the
-                            following methods:</p>
-
-                        <div class="code">
-                            <div>equals(value)</div>
-                            <div>lessThan(value)</div>
-                            <div>greaterThan(value)</div>
-                            <div>notEqual(value)</div>
-                            <div>lessThanOrEqual(value)</div>
-                            <div>greaterThanOrEqualTo(value)</div>
-                            <div>toString()</div>
-                        </div>
+                            the standard comparison operators
+                            in addition to checks for the existence or non-existence of a property.
                     </div>
                 </div>
             </div>
@@ -177,7 +130,7 @@
                         <div class="exampleInside">
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>{city1} return p;</p>
+                                    pl.city<>'westminster' return p;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -188,13 +141,13 @@
                                         FactGem.wingman.Relationship('r','hasResidentialAddress','outgoing'))<br/>
                                         .endNode(new FactGem.wingman.Node('pl', 'Place'));
                                     </div>
-                                    <div>match.where('pl', 'city').notEqual('city1');</div>
+                                    <div>match.where('pl', 'city').notEqual('westminster');</div>
                                     <div>cypher.addMatch(match).andReturn().variable('p');</div>
                                 </div>
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10;</p>
+                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -204,7 +157,7 @@
                                         &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
                                         'hasResidentialAddress', 'outgoing'))<br/>
                                         .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('city1');<br/><br/>
+                                        .where('pl', 'city').notEqual('westminster');<br/><br/>
                                         cypher.addMatch(match).andReturn().variable('p')<br/>
                                         .andReturn().distinctValues().variable('pl').property('city')<br/>
                                         .skip(10).orderBy('p', 'familyName');
@@ -213,7 +166,7 @@
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10;</p>
+                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -223,7 +176,7 @@
                                         &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
                                         'hasResidentialAddress','outgoing'))<br/>
                                         .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('city1');
+                                        .where('pl', 'city').notEqual('westminster');
                                     </div>
                                     <div>
                                         cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
@@ -234,7 +187,8 @@
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit
+                                    pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10
+                                    limit
                                     100;</p>
 
                                 <div class="code">
@@ -245,7 +199,7 @@
                                         &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
                                         'hasResidentialAddress','outgoing'))<br/>
                                         .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('city1');
+                                        .where('pl', 'city').notEqual('westminster');
                                     </div>
                                     <div>
                                         cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
@@ -256,31 +210,23 @@
                             </div>
                             <div class="example">
                                 <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                    pl.city<>{city1} optional match (p:Person)-[r2:hasMailingAddress]->(pl:Place) where
-                                    pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit
+                                    p.age>=30 return p, distinct pl.city order by p.familyName skip 10 limit
                                     100;</p>
 
                                 <div class="code">
                                     <div>var cypher = new FactGem.wingman.Cypher();</div>
-                                    <div>var match = new FactGem.wingman.Match();</div>
-                                    <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
+                                    <div> var match = new FactGem.wingman.Match();</div>
+                                    <div> match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
                                         .relationship(<br/>
                                         &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
                                         'hasResidentialAddress','outgoing'))<br/>
                                         .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('city1');
+                                        .where('p', 'age').greaterThanOrEqualTo(30);
                                     </div>
-                                    <div>var optionalMatch = new FactGem.wingman.Match();</div>
-                                    <div>optionalMatch.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                        .relationship(<br/>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r2',
-                                        'hasMailingAddress','outgoing'))<br/>
-                                        .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                        .where('pl', 'city').notEqual('city1');
-                                    </div>
-                                    <div>cypher.addMatch(match).addOptionalMatch(optionalMatch).andReturn()<br/>
-                                        .variable('p').andReturn().distinctValues()<br/>
-                                        .variable('pl').property('city').orderBy('p','familyName').skip(10).limit(100);
+                                    <div>
+                                        cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
+                                        .distinctValues().variable('pl').property('city')<br/>
+                                        .orderBy('p','familyName').skip(10).limit(100);
                                     </div>
                                 </div>
                             </div>
@@ -389,7 +335,7 @@
                         <div>toString()</div>
                     </div>
                 </div>
-                <div>
+                <div class="center">
                     <h3>Examples</h3>
 
                     <p class="center">Below are some example Cypher queries along with the WINGMAN code to generate
@@ -397,7 +343,7 @@
 
                     <div class="example">
                         <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            pl.city<>{city1} return p;</p>
+                            pl.city<>'westminster' return p;</p>
 
                         <div class="code">
                             <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -408,13 +354,13 @@
                                 FactGem.wingman.Relationship('r','hasResidentialAddress','outgoing'))<br/>
                                 .endNode(new FactGem.wingman.Node('pl', 'Place'));
                             </div>
-                            <div>match.where('pl', 'city').notEqual('city1');</div>
+                            <div>match.where('pl', 'city').notEqual('westminster');</div>
                             <div>cypher.addMatch(match).andReturn().variable('p');</div>
                         </div>
                     </div>
                     <div class="example">
                         <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                            pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10;</p>
+                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
 
                         <div class="code">
                             <div>var cypher = new FactGem.wingman.Cypher();</div>
@@ -424,87 +370,82 @@
                                 &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
                                 'hasResidentialAddress', 'outgoing'))<br/>
                                 .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                .where('pl', 'city').notEqual('city1');<br/><br/>
+                                .where('pl', 'city').notEqual('westminster');<br/><br/>
                                 cypher.addMatch(match).andReturn().variable('p')<br/>
                                 .andReturn().distinctValues().variable('pl').property('city')<br/>
                                 .skip(10).orderBy('p', 'familyName');
                             </div>
                         </div>
-                        <div class="example">
-                            <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10;</p>
+                    </div>
+                    <div class="example">
+                        <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
+                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10;</p>
 
-                            <div class="code">
-                                <div>var cypher = new FactGem.wingman.Cypher();</div>
-                                <div>var match = new FactGem.wingman.Match();</div>
-                                <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                    .relationship(<br/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
-                                    'hasResidentialAddress','outgoing'))<br/>
-                                    .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                    .where('pl', 'city').notEqual('city1');
-                                </div>
-                                <div>
-                                    cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
-                                    .distinctValues().variable('pl').property('city')<br/>
-                                    .skip(10).orderBy('p','familyName');
-                                </div>
+                        <div class="code">
+                            <div>var cypher = new FactGem.wingman.Cypher();</div>
+                            <div>var match = new FactGem.wingman.Match();</div>
+                            <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
+                                .relationship(<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
+                                'hasResidentialAddress','outgoing'))<br/>
+                                .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
+                                .where('pl', 'city').notEqual('westminster');
                             </div>
-                        </div>
-                        <div class="example">
-                            <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit
-                                100;</p>
-
-                            <div class="code">
-                                <div>var cypher = new FactGem.wingman.Cypher();</div>
-                                <div> var match = new FactGem.wingman.Match();</div>
-                                <div> match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                    .relationship(<br/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
-                                    'hasResidentialAddress','outgoing'))<br/>
-                                    .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                    .where('pl', 'city').notEqual('city1');
-                                </div>
-                                <div>
-                                    cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
-                                    .distinctValues().variable('pl').property('city')<br/>
-                                    .orderBy('p','familyName').skip(10).limit(100);
-                                </div>
-                            </div>
-                        </div>
-                        <div class="example">
-                            <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
-                                pl.city<>{city1} optional match (p:Person)-[r2:hasMailingAddress]->(pl:Place) where
-                                pl.city<>{city1} return p, distinct pl.city order by p.familyName skip 10 limit
-                                100;</p>
-
-                            <div class="code">
-                                <div>var cypher = new FactGem.wingman.Cypher();</div>
-                                <div>var match = new FactGem.wingman.Match();</div>
-                                <div>match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                    .relationship(<br/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
-                                    'hasResidentialAddress','outgoing'))<br/>
-                                    .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                    .where('pl', 'city').notEqual('city1');
-                                </div>
-                                <div>var optionalMatch = new FactGem.wingman.Match();</div>
-                                <div>optionalMatch.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
-                                    .relationship(<br/>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r2',
-                                    'hasMailingAddress','outgoing'))<br/>
-                                    .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
-                                    .where('pl', 'city').notEqual('city1');
-                                </div>
-                                <div>cypher.addMatch(match).addOptionalMatch(optionalMatch).andReturn()<br/>
-                                    .variable('p').andReturn().distinctValues()<br/>
-                                    .variable('pl').property('city').orderBy('p','familyName').skip(10).limit(100);
-                                </div>
+                            <div>
+                                cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
+                                .distinctValues().variable('pl').property('city')<br/>
+                                .skip(10).orderBy('p','familyName');
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="example">
+                        <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
+                            pl.city<>'westminster' return p, distinct pl.city order by p.familyName skip 10
+                            limit
+                            100;</p>
+
+                        <div class="code">
+                            <div>var cypher = new FactGem.wingman.Cypher();</div>
+                            <div> var match = new FactGem.wingman.Match();</div>
+                            <div> match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
+                                .relationship(<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
+                                'hasResidentialAddress','outgoing'))<br/>
+                                .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
+                                .where('pl', 'city').notEqual('westminster');
+                            </div>
+                            <div>
+                                cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
+                                .distinctValues().variable('pl').property('city')<br/>
+                                .orderBy('p','familyName').skip(10).limit(100);
+                            </div>
+                        </div>
+                    </div>
+                    <div class="example">
+                        <p class="codeTxt">match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where
+                            p.age>=30 return p, distinct pl.city order by p.familyName skip 10 limit
+                            100;</p>
+
+                        <div class="code">
+                            <div>var cypher = new FactGem.wingman.Cypher();</div>
+                            <div> var match = new FactGem.wingman.Match();</div>
+                            <div> match.startNode(new FactGem.wingman.Node('p', 'Person'))<br/>
+                                .relationship(<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;new FactGem.wingman.Relationship('r',
+                                'hasResidentialAddress','outgoing'))<br/>
+                                .endNode(new FactGem.wingman.Node('pl', 'Place'))<br/>
+                                .where('p', 'age').greaterThanOrEqualTo(30);
+                            </div>
+                            <div>
+                                cypher.addMatch(match).andReturn().variable('p').andReturn()<br/>
+                                .distinctValues().variable('pl').property('city')<br/>
+                                .orderBy('p','familyName').skip(10).limit(100);
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+    </div>
         </section>
         <!--footer-->
         <footer>
