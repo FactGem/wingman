@@ -270,4 +270,19 @@ describe("Cypher", function () {
         cypher.addMatch(match).andReturn().variable('p');
         expect(cypher.toString()).toEqual("match (p:Person) where has(p.gender) return p;");
     });
+
+    it("produces correct cypher when handling more than 2 match clauses", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var match1 = new FactGem.wingman.Match();
+        match1.startNode(new FactGem.wingman.Node('sr1', 'SurveyResponse')).relationship(new FactGem.wingman.Relationship('r1', 'hasRespondant'))
+            .endNode(new FactGem.wingman.Node('n1', 'Person'));
+        var match2 = new FactGem.wingman.Match();
+        match2.startNode(new FactGem.wingman.Node('sr1', 'SurveyResponse')).relationship(new FactGem.wingman.Relationship('r2', 'hasAnswer'))
+            .endNode(new FactGem.wingman.Node('n3', 'Answer'));
+        var match3 = new FactGem.wingman.Match();
+        match3.startNode(new FactGem.wingman.Node('n3', 'Answer')).relationship(new FactGem.wingman.Relationship('r3', 'hasChoice'))
+            .endNode(new FactGem.wingman.Node('n4', 'Choice')).where('n4', 'value').equals('blue');
+        cypher.addMatch(match1).addMatch(match2).addMatch(match3).andReturn().variable('n1');
+        expect(cypher.toString()).toEqual("match (sr1:SurveyResponse)-[r1:hasRespondant]->(n1:Person), (sr1:SurveyResponse)-[r2:hasAnswer]->(n3:Answer), (n3:Answer)-[r3:hasChoice]->(n4:Choice) where n4.value='blue' return n1;");
+    });
 });

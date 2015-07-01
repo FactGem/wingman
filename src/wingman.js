@@ -100,7 +100,11 @@ FactGem.wingman = (function namespace() {
     function Relationship(name, type, direction) {
         this.name = name;
         this.type = type;
-        this.direction = direction;
+        if (typeof(direction) === 'undefined') {
+            this.direction = 'OUTGOING';
+        } else {
+            this.direction = direction;
+        }
         this.properties = {};
     }
 
@@ -805,17 +809,19 @@ FactGem.wingman = (function namespace() {
      */
     Cypher.prototype.toString = function () {
         var value = 'match ';
-        for (var index in this.matches) {
+        var length = this.matches.length;
+        for (var index = 0; index < length; index++) {
             //noinspection JSUnfilteredForInLoop
             value = value + this.matches[index];
-            if (index + 1 < this.matches.length) {
+            if (index + 1 < length) {
                 value = value + ", ";
             }
         }
         if (this.optionalMatches.length) {
             value += ' optional match ';
         }
-        for (index in this.optionalMatches) {
+        length = this.optionalMatches.length;
+        for (index = 0; index < length; index++) {
             //noinspection JSUnfilteredForInLoop
             value = value + this.optionalMatches[index];
             if (index + 1 < this.optionalMatches.length) {
@@ -827,7 +833,8 @@ FactGem.wingman = (function namespace() {
             if (this.distinct) {
                 value += 'distinct ';
             }
-            for (index in this.returns) {
+            length = this.returns.length;
+            for (index = 0; index < length; index++) {
                 //noinspection JSUnfilteredForInLoop
                 value += this.returns[index];
                 if (index + 1 < this.returns.length) {
