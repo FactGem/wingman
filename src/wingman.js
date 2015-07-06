@@ -203,18 +203,68 @@ FactGem.wingman = (function namespace() {
 
     /**
      * @memberOf wingman
-     * Creates a new Match clause
+     * Creates a new Pattern. A Pattern describes at least one node and an optional relationship to another node.
      * @param startNode {Node} Required starting node for the match
      * @param relationship {Relationship} Optional relationship
      * @param endNode {Node} Required if relationship is present
      * @constructor
      */
-    function Match(startNode, relationship, endNode) {
+    function Pattern(startNode, relationship, endNode) {
         this.start = startNode;
         this.rel = relationship;
         this.end = endNode;
-        this.whereClause = null;
     }
+
+    /**
+     * sets the Start node for the Match
+     * @param startnode {Node}
+     * @returns {Pattern}
+     */
+    Pattern.prototype.startNode = function (startnode) {
+        this.start = startnode;
+        return this;
+    };
+
+    /**
+     * Sets the Relationship for the Match
+     * @param relationship {Relationship}
+     * @returns {Pattern}
+     */
+    Pattern.prototype.relationship = function (relationship) {
+        this.rel = relationship;
+        return this;
+    };
+
+    /**
+     * Sets the end node for the Match
+     * @param endnode {Node}
+     * @returns {Pattern}
+     */
+    Pattern.prototype.endNode = function (endnode) {
+        this.end = endnode;
+        return this;
+    };
+
+    /**
+     * @memberOf wingman
+     * Creates a new Match clause
+     * @param pattern {Pattern} Required pattern to match on
+     * @constructor
+     */
+    function Match(pattern) {
+        this.whereClause = null;
+        this.patterns = [pattern];
+    }
+
+    /**
+     * Adds another pattern to the match clause to further define the match
+     * @param pattern
+     * @returns {Match}
+     */
+    Match.prototype.addPattern = function (pattern) {
+        this.patterns.push(pattern);
+        return this;
+    };
 
     /**
      * Returns the parameters for this Match and all child Match clauses. Should not be called externally.
@@ -234,32 +284,28 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     * sets the Start node for the Match
-     * @param startnode {Node}
-     * @returns {Match}
+     * Removes a match clause from the cypher query
+     * @param pattern {Match} Match clause to be removed
+     * @returns {Cypher}
      */
-    Match.prototype.startNode = function (startnode) {
-        this.start = startnode;
-        return this;
-    };
-
-    /**
-     * Sets the Relationship for the Match
-     * @param relationship {Relationship}
-     * @returns {Match}
-     */
-    Match.prototype.relationship = function (relationship) {
-        this.rel = relationship;
-        return this;
-    };
-
-    /**
-     * Sets the end node for the Match
-     * @param endnode {Node}
-     * @returns {Match}
-     */
-    Match.prototype.endNode = function (endnode) {
-        this.end = endnode;
+    Match.prototype.removePattern = function (pattern) {
+        var location = -1;
+        for (var index = 0; index < this.patterns.length; index++) {
+            if (this.patterns[index] === pattern) {
+                location = index;
+                break;
+            }
+        }
+        if (location > -1) {
+            // remove the item from the matches array and create a new array without the path so we don't end up with a sparse array
+            var newPatterns = [];
+            for (index = 0; index < this.patterns.length; index++) {
+                if (index != location) {
+                    newPatterns.push(this.patterns[index]);
+                }
+            }
+            this.patterns = newPatterns;
+        }
         return this;
     };
 
@@ -268,11 +314,17 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Match.prototype.toString = function () {
-        var value = this.start.toString();
-        if (this.rel) {
-            value = value + this.rel.toString();
-            if (this.end) { // don't even look for an end node if there is no rel
-                value = value + this.end.toString();
+        var value = "";
+        for (var index = 0; index < this.patterns.length; index++) {
+            value = value + this.patterns[index].start.toString();
+            if (this.patterns[index].rel) {
+                value = value + this.patterns[index].rel.toString();
+                if (this.patterns[index].end) { // don't even look for an end node if there is no rel
+                    value = value + this.patterns[index].end.toString();
+                }
+            }
+            if (index < this.patterns.length - 1) {
+                value = value + ','
             }
         }
 
@@ -287,11 +339,17 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Match.prototype.toParameterizedString = function () {
-        var value = this.start.toParameterizedString();
-        if (this.rel) {
-            value = value + this.rel.toString();
-            if (this.end) { // don't even look for an end node if there is no rel
-                value = value + this.end.toParameterizedString();
+        var value = "";
+        for (var index = 0; index < this.patterns.length; index++) {
+            value = value + this.patterns[index].start.toParameterizedString();
+            if (this.patterns[index].rel) {
+                value = value + this.patterns[index].rel.toParameterizedString();
+                if (this.patterns[index].end) { // don't even look for an end node if there is no rel
+                    value = value + this.patterns[index].end.toParameterizedString();
+                }
+            }
+            if (index < this.patterns.length - 1) {
+                value = value + ','
             }
         }
 
@@ -611,7 +669,7 @@ FactGem.wingman = (function namespace() {
      * @constructor
      */
     function Cypher() {
-        this.matches = [];
+        this.matchClause = null;
         this.optionalMatches = [];
         this.orderByVariable = null;
         this.orderByProperty = null;
@@ -627,36 +685,11 @@ FactGem.wingman = (function namespace() {
      * @param match {Match} Match clause to be added
      * @returns {Cypher}
      */
-    Cypher.prototype.addMatch = function (match) {
-        this.matches.push(match);
+    Cypher.prototype.match = function (match) {
+        this.matchClause = match;
         return this;
     };
 
-    /**
-     * Removes a match clause from the cypher query
-     * @param match {Match} Match clause to be removed
-     * @returns {Cypher}
-     */
-    Cypher.prototype.removeMatch = function (match) {
-        var location = -1;
-        for (var index = 0; index < this.matches.length; index++) {
-            if (this.matches[index] === match) {
-                location = index;
-                break;
-            }
-        }
-        if (location > -1) {
-            // remove the item from the matches array and create a new array without the path so we don't end up with a sparse array
-            var newMatches = [];
-            for (index = 0; index < this.matches.length; index++) {
-                if (index != location) {
-                    newMatches.push(this.matches[index]);
-                }
-            }
-            this.matches = newMatches;
-        }
-        return this;
-    };
 
     /**
      * Adds an optional match clause to the query
@@ -993,6 +1026,7 @@ FactGem.wingman = (function namespace() {
         Node: Node,
         Relationship: Relationship,
         Match: Match,
+        Pattern: Pattern,
         Where: Where,
         Cypher: Cypher,
         Return: Return
