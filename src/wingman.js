@@ -324,7 +324,7 @@ FactGem.wingman = (function namespace() {
                 }
             }
             if (index < this.patterns.length - 1) {
-                value = value + ','
+                value = value + ', '
             }
         }
 
@@ -349,7 +349,7 @@ FactGem.wingman = (function namespace() {
                 }
             }
             if (index < this.patterns.length - 1) {
-                value = value + ','
+                value = value + ', '
             }
         }
 
@@ -783,14 +783,8 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Cypher.prototype.toParameterizedString = function () {
-        var value = 'match ';
-        for (var index in this.matches) {
-            //noinspection JSUnfilteredForInLoop
-            value = value + this.matches[index].toParameterizedString();
-            if (index + 1 < this.matches.length) {
-                value = value + ", ";
-            }
-        }
+        var value = 'match ' + this.matchClause.toParameterizedString();
+
         if (this.optionalMatches.length) {
             value += ' optional match ';
         }
@@ -841,15 +835,7 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Cypher.prototype.toString = function () {
-        var value = 'match ';
-        var length = this.matches.length;
-        for (var index = 0; index < length; index++) {
-            //noinspection JSUnfilteredForInLoop
-            value = value + this.matches[index];
-            if (index + 1 < length) {
-                value = value + ", ";
-            }
-        }
+        var value = 'match ' + this.matchClause.toString();
         if (this.optionalMatches.length) {
             value += ' optional match ';
         }
