@@ -406,11 +406,19 @@ FactGem.wingman = (function namespace() {
      * @constructor
      */
     function Where(name, property, parent) {
-        this.name = name;
-        this.property = property;
+        if (name instanceof Where) {
+            this.containedWhereGroup = name;
+            this.name = null;
+            this.property = null;
+            this.parent = null;
+        } else {
+            this.name = name;
+            this.property = property;
+            this.parent = parent;
+            this.containedWhereGroup = null;
+        }
         this.operator = null;
         this.valueReference = null;
-        this.parent = parent;
         this.whereClause = null;
         this.joiningOperator = null;
         this.checkHasProperty = false;
@@ -484,9 +492,14 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.andWhere = function (name, property) {
-        this.whereClause = new Where(name, property, this);
         this.joiningOperator = 'AND';
-        return this.whereClause;
+        if (name instanceof Where) {
+            this.containedWhereGroup = name;
+            return this;
+        } else {
+            this.whereClause = new Where(name, property, this);
+            return this.whereClause;
+        }
     };
 
     /**
@@ -496,9 +509,14 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.orWhere = function (name, property) {
-        this.whereClause = new Where(name, property, this);
         this.joiningOperator = 'OR';
-        return this.whereClause;
+        if (name instanceof Where) {
+            this.containedWhereGroup = name;
+            return this;
+        } else {
+            this.whereClause = new Where(name, property, this);
+            return this.whereClause;
+        }
     };
 
     /**
@@ -616,6 +634,10 @@ FactGem.wingman = (function namespace() {
             var childString = this.whereClause.parameterizedStringValue();
             value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
         }
+        if (this.containedWhereGroup) {
+            var childGroupString = this.containedWhereGroup.toParameterizedString();
+            value += " " + this.joiningOperator + " (" + childGroupString.substr(5, childGroupString.length) + " )";
+        }
         return value;
     };
 
@@ -641,6 +663,10 @@ FactGem.wingman = (function namespace() {
         if (this.whereClause) {
             var childString = this.whereClause.stringValue();
             value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
+        }
+        if (this.containedWhereGroup) {
+            var childGroupString = this.containedWhereGroup.toString();
+            value += " " + this.joiningOperator + " (" + childGroupString.substr(5, childGroupString.length) + " )";
         }
         return value;
     };

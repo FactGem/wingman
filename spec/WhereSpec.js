@@ -165,4 +165,36 @@ describe("Where", function () {
         where = match.where('n', 'gender').equals('male').andWhereHasProperty('n', 'age').andWhere('n', 'givenName').equals('bob');
         expect(where.toString()).toEqual("where n.gender='male' AND has(n.age) AND n.givenName='bob'")
     });
+
+    it("should produce valid cypher for nested where clause joined by an AND", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('male').andWhere(new FactGem.wingman.Where('n', 'age').equals(42).orWhere('n', 'givenName').equals('bob'));
+        expect(where.toString()).toEqual("where n.gender='male' AND ( n.age=42 OR n.givenName='bob' )")
+    });
+
+    it("should produce valid parameterized cypher for nested where clause joined by an AND", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').andWhere(new FactGem.wingman.Where('n', 'age').equals('age').orWhere('n', 'givenName').equals('name'));
+        expect(where.toParameterizedString()).toEqual("where n.gender={gender} AND ( n.age={age} OR n.givenName={name} )")
+    });
+
+    it("should produce valid cypher for nested where clause joined by an OR", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('male').orWhere(new FactGem.wingman.Where('n', 'age').equals(42).andWhere('n', 'givenName').equals('bob'));
+        expect(where.toString()).toEqual("where n.gender='male' OR ( n.age=42 AND n.givenName='bob' )")
+    });
+
+    it("should produce valid parameterized cypher for nested where clause joined by an OR", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('gender').orWhere(new FactGem.wingman.Where('n', 'age').equals('age').andWhere('n', 'givenName').equals('name'));
+        expect(where.toParameterizedString()).toEqual("where n.gender={gender} OR ( n.age={age} AND n.givenName={name} )")
+    });
+
+    it("should produce valid cypher for multiple nested where clause joined by an AND", function () {
+        var match = new FactGem.wingman.Match();
+        where = match.where('n', 'gender').equals('male').andWhere(new FactGem.wingman.Where('n', 'age').equals(42).orWhere('n', 'givenName').equals('bob')
+            .andWhere(new FactGem.wingman.Where('n', 'familyName').equals('smity').orWhere('n', 'weight').equals(160)));
+        expect(where.toString()).toEqual("where n.gender='male' AND ( n.age=42 OR n.givenName='bob' AND ( n.familyName='smity' OR n.weight=160 ) )")
+    });
+
 });

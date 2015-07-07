@@ -4,3 +4,5 @@ For more information please visit http://factgem.github.io/wingman/
 
 Version 1.0
 * Support for most standard cypher query operations
+* Updated match syntax
+* Support for grouping inside of where clauses
