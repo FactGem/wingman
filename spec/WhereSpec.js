@@ -4,197 +4,120 @@
 describe("Where", function () {
     var where;
 
-    it("should produce valid parameterized cypher for equals operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender}')
+    it("should produce valid cypher for basic equals comparison", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female'));
+        expect(where.toString()).toEqual("n.gender = 'female'")
     });
 
-    it("should produce valid cypher for equals operator with string value", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male');
-        expect(where.toString()).toEqual("where n.gender='male'")
+    it("should produce valid cypher for two basic equals comparisons joined by AND", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
+        expect(where.toString()).toEqual("n.gender = 'female' AND n.age = 12")
     });
 
-    it("should produce valid cypher for equals operator with int value", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').equals(50);
-        expect(where.toString()).toEqual("where n.age=50")
+    it("should produce valid cypher for has comparisons with = comparison joined by AND", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', 'has')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
+        expect(where.toString()).toEqual("HAS(n.gender) AND n.age = 12")
     });
 
-    it("should produce valid cypher for equals operator with boolean value", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'alive').equals(true);
-        expect(where.toString()).toEqual("where n.alive=true")
+    it("should produce valid cypher for not has comparisons with = comparison joined by AND", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', 'not has')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
+        expect(where.toString()).toEqual("NOT HAS(n.gender) AND n.age = 12")
     });
 
-    it("should produce valid parameterized cypher for not equal operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').notEqual('gender');
-        expect(where.toParameterizedString()).toEqual('where n.gender<>{gender}')
+
+    it("should produce valid cypher for three basic equals comparisons joined by AND", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+            .andWhere(new FactGem.wingman.Comparison('n', 'givenName', '<>', 'Bob'));
+        expect(where.toString()).toEqual("n.gender = 'female' AND n.age = 12 AND n.givenName <> 'Bob'")
     });
 
-    it("should produce valid cypher for not equal operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').notEqual('male');
-        expect(where.toString()).toEqual("where n.gender<>'male'")
+    it("should produce valid cypher for two basic equals comparisons joined by OR", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).orWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
+        expect(where.toString()).toEqual("n.gender = 'female' OR n.age = 12")
     });
 
-    it("should produce valid parameterized cypher for lessThan operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').lessThan('age');
-        expect(where.toParameterizedString()).toEqual('where n.age<{age}')
+    it("should produce valid cypher for two basic equals comparisons joined by OR", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).orWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
+        expect(where.toString()).toEqual("n.gender = 'female' OR n.age = 12")
     });
 
-    it("should produce valid cypher for lessThan operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').lessThan(40);
-        expect(where.toString()).toEqual('where n.age<40')
+    it("should produce valid cypher for three basic equals comparisons joined by OR", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).orWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+            .orWhere(new FactGem.wingman.Comparison('n', 'givenName', '<>', 'Bob'));
+        expect(where.toString()).toEqual("n.gender = 'female' OR n.age = 12 OR n.givenName <> 'Bob'")
     });
 
-    it("should produce valid parameterized cypher for greaterThan operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').greaterThan('age');
-        expect(where.toParameterizedString()).toEqual('where n.age>{age}')
+    it("should produce valid cypher for three basic equals comparisons joined by mixed operators", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+            .orWhere(new FactGem.wingman.Comparison('n', 'givenName', '<>', 'Bob'));
+        expect(where.toString()).toEqual("n.gender = 'female' AND n.age = 12 OR n.givenName <> 'Bob'")
     });
 
-    it("should produce valid cypher for greaterThan operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').greaterThan('age');
-        expect(where.toParameterizedString()).toEqual('where n.age>{age}')
+    it("should produce valid cypher for one group", function () {
+        var group = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')));
+        where = new FactGem.wingman.Where(group);
+        expect(where.toString()).toEqual("(n.gender = 'female')")
     });
 
-    it("should produce valid parameterized cypher for greaterThanOrEqualTo operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').greaterThanOrEqualTo(40);
-        expect(where.toString()).toEqual('where n.age>=40')
+    it("should produce valid cypher for one group containing two comparisons", function () {
+        var group = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+        );
+        where = new FactGem.wingman.Where(group);
+        expect(where.toString()).toEqual("(n.gender = 'female' AND n.age = 12)")
     });
 
-    it("should produce valid parameterized cypher for lessThanOrEqualTo operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').lessThanOrEqualTo('age');
-        expect(where.toParameterizedString()).toEqual('where n.age<={age}')
+    it("should produce valid cypher for two groups joined by AND containing two comparisons", function () {
+        var group = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+        );
+        var group2 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'male'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '>', 12))
+        );
+        where = new FactGem.wingman.Where(group).andWhere(group2);
+        expect(where.toString()).toEqual("(n.gender = 'female' AND n.age = 12) AND (n.gender = 'male' AND n.age > 12)")
     });
 
-    it("should produce valid cypher for lessThanOrEqualTo operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'age').lessThanOrEqualTo(33);
-        expect(where.toString()).toEqual('where n.age<=33')
+    it("should produce valid cypher for three groups joined by varying joiners each containing two comparisons", function () {
+        var group = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+        );
+        var group2 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'male'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '>', 12))
+        );
+
+        var group3 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'firstName', '=', 'Clark'))
+                .orWhere(new FactGem.wingman.Comparison('n', 'age', '>', 12))
+        );
+        where = new FactGem.wingman.Where(group).andWhere(group2).orWhere(group3);
+        expect(where.toString()).toEqual("(n.gender = 'female' AND n.age = 12) AND (n.gender = 'male' AND n.age > 12) OR (n.firstName = 'Clark' OR n.age > 12)")
     });
 
-    it("should produce valid parameterized cypher for equals operator with another ANDed where", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').andWhere('n', 'age').greaterThanOrEqualTo('age');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} AND n.age>={age}')
-    });
+    it("should produce valid cypher for one group containing two other groups", function () {
+        var group = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12))
+        );
+        var group2 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'male'))
+                .andWhere(new FactGem.wingman.Comparison('n', 'age', '>', 12))
+        );
+        var group3 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'firstName', '=', 'Clark'))
+                .orWhere(new FactGem.wingman.Comparison('n', 'age', '>', 12))
+        );
 
-    it("should produce valid cypher for equals operator with another ANDed where", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').andWhere('n', 'age').greaterThanOrEqualTo(40);
-        expect(where.toString()).toEqual("where n.gender='male' AND n.age>=40")
-    });
-
-    it("should produce valid parameterized cypher for equals operator with another ORed where", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').orWhere('n', 'age').greaterThanOrEqualTo('age');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} OR n.age>={age}')
-    });
-
-    it("should produce valid cypher for equals operator with another ORed where", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').orWhere('n', 'age').greaterThanOrEqualTo(40);
-        expect(where.toString()).toEqual("where n.gender='male' OR n.age>=40")
-    });
-
-    it("should produce valid parameterized cypher for equals operator with another ORed where followed and an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').orWhere('n', 'age').greaterThanOrEqualTo('age').andWhere('n', 'givenName').equals('name');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} OR n.age>={age} AND n.givenName={name}')
-    });
-
-    it("should produce valid cypher for equals operator with another ORed where followed and an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').orWhere('n', 'age').greaterThanOrEqualTo(40).andWhere('n', 'givenName').equals('bob');
-        expect(where.toString()).toEqual("where n.gender='male' OR n.age>=40 AND n.givenName='bob'")
-    });
-
-    it("should produce valid cypher for hasProperty operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.whereHasProperty('n', 'age');
-        expect(where.toString()).toEqual('where has(n.age)')
-    });
-
-    it("should produce valid cypher for hasProperty operator", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.whereNotHasProperty('n', 'age');
-        expect(where.toString()).toEqual('where NOT has(n.age)')
-    });
-
-    it("should produce valid parameterized cypher for equals operator with ORed has Property", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').orWhereHasProperty('n', 'age');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} OR has(n.age)')
-    });
-
-    it("should produce valid cypher for equals operator with ORed has Property", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').orWhereHasProperty('n', 'age');
-        expect(where.toString()).toEqual("where n.gender='male' OR has(n.age)")
-    });
-
-    it("should produce valid parameterized cypher for equals operator with ANDed has Property", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').andWhereHasProperty('n', 'age');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} AND has(n.age)')
-    });
-
-    it("should produce valid cypher for equals operator with ANDed has Property", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').andWhereHasProperty('n', 'age');
-        expect(where.toString()).toEqual("where n.gender='male' AND has(n.age)")
-    });
-
-    it("should produce valid parameterized cypher for equals operator with  ANDed has Property followed and an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').andWhereHasProperty('n', 'age').andWhere('n', 'givenName').equals('name');
-        expect(where.toParameterizedString()).toEqual('where n.gender={gender} AND has(n.age) AND n.givenName={name}')
-    });
-
-    it("should produce valid cypher for equals operator with  ANDed has Property followed and an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').andWhereHasProperty('n', 'age').andWhere('n', 'givenName').equals('bob');
-        expect(where.toString()).toEqual("where n.gender='male' AND has(n.age) AND n.givenName='bob'")
-    });
-
-    it("should produce valid cypher for nested where clause joined by an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').andWhere(new FactGem.wingman.Where('n', 'age').equals(42).orWhere('n', 'givenName').equals('bob'));
-        expect(where.toString()).toEqual("where n.gender='male' AND ( n.age=42 OR n.givenName='bob' )")
-    });
-
-    it("should produce valid parameterized cypher for nested where clause joined by an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').andWhere(new FactGem.wingman.Where('n', 'age').equals('age').orWhere('n', 'givenName').equals('name'));
-        expect(where.toParameterizedString()).toEqual("where n.gender={gender} AND ( n.age={age} OR n.givenName={name} )")
-    });
-
-    it("should produce valid cypher for nested where clause joined by an OR", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').orWhere(new FactGem.wingman.Where('n', 'age').equals(42).andWhere('n', 'givenName').equals('bob'));
-        expect(where.toString()).toEqual("where n.gender='male' OR ( n.age=42 AND n.givenName='bob' )")
-    });
-
-    it("should produce valid parameterized cypher for nested where clause joined by an OR", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('gender').orWhere(new FactGem.wingman.Where('n', 'age').equals('age').andWhere('n', 'givenName').equals('name'));
-        expect(where.toParameterizedString()).toEqual("where n.gender={gender} OR ( n.age={age} AND n.givenName={name} )")
-    });
-
-    it("should produce valid cypher for multiple nested where clause joined by an AND", function () {
-        var match = new FactGem.wingman.Match();
-        where = match.where('n', 'gender').equals('male').andWhere(new FactGem.wingman.Where('n', 'age').equals(42).orWhere('n', 'givenName').equals('bob')
-            .andWhere(new FactGem.wingman.Where('n', 'familyName').equals('smity').orWhere('n', 'weight').equals(160)));
-        expect(where.toString()).toEqual("where n.gender='male' AND ( n.age=42 OR n.givenName='bob' AND ( n.familyName='smity' OR n.weight=160 ) )")
+        var group4 = new FactGem.wingman.Group(
+            new FactGem.wingman.Where(group2).orWhere(group3));
+        where = new FactGem.wingman.Where(group).andWhere(group4);
+        expect(where.toString()).toEqual("(n.gender = 'female' AND n.age = 12) AND ((n.gender = 'male' AND n.age > 12) OR (n.firstName = 'Clark' OR n.age > 12))")
     });
 
 });

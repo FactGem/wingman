@@ -22,17 +22,6 @@ describe("Relationship", function () {
 
     });
 
-    it("should produce parameterized properties", function () {
-        relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
-        relationship.addProperty('gender', 'gender1');
-        expect(relationship.toParameterizedString()).toEqual('-[p:Person {gender:{gender1}}]->');
-        relationship.addProperty('age', 'age1');
-        expect(relationship.toParameterizedString()).toEqual('-[p:Person {gender:{gender1}, age:{age1}}]->');
-        relationship = new FactGem.wingman.Relationship('x', 'Person', "outgoing");
-        relationship.addProperty('gender', 'gender1').addProperty('age', 'age1'); // test fluid api
-        expect(relationship.toParameterizedString()).toEqual('-[x:Person {gender:{gender1}, age:{age1}}]->');
-    });
-
     it("should produce non-parameterized properties", function () {
         relationship = new FactGem.wingman.Relationship('p', 'Person', "outgoing");
         relationship.addProperty('gender', 'male');

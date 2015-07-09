@@ -7,33 +7,16 @@ describe("Match", function () {
     it("should produce the start nodes toString when it just contains a start node", function () {
         var node = new FactGem.wingman.Node('p', 'Person');
         match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(node));
-        expect(match.toParameterizedString()).toEqual('(p:Person)');
-
-    });
-
-    it("should produce correct parameterized cypher when it just contains a start node and a match clause", function () {
-        var node = new FactGem.wingman.Node('p', 'Person');
-        match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(node));
-        match.where('p', 'lastName').equals('lastName');
-        expect(match.toParameterizedString()).toEqual('(p:Person) where p.lastName={lastName}');
+        expect(match.toString()).toEqual('(p:Person)');
 
     });
 
     it("should produce correct cypher when it just contains a start node and a match clause", function () {
         var node = new FactGem.wingman.Node('p', 'Person');
         match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(node));
-        match.where('p', 'lastName').equals('johnson');
-        expect(match.toString()).toEqual("(p:Person) where p.lastName='johnson'");
+        match.where(new FactGem.wingman.Where(new FactGem.wingman.Comparison('p', 'lastName', "=", "johnson")));
+        expect(match.toString()).toEqual("(p:Person) where p.lastName = 'johnson'");
 
-    });
-
-    it("should produce the parameterized start nodes, rel and end nodes toString when it just contains a full path", function () {
-        var startNode = new FactGem.wingman.Node('p', 'Person');
-        startNode.addProperty('city', 'city1');
-        var endNodeNode = new FactGem.wingman.Node('pl', 'Place');
-        var relationship = new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing');
-        match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(startNode, relationship, endNodeNode));
-        expect(match.toParameterizedString()).toEqual('(p:Person {city:{city1}})-[r:hasResidentialAddress]->(pl:Place)');
     });
 
     it("should produce the start nodes, rel and end nodes toString when it just contains a full path", function () {
@@ -43,21 +26,6 @@ describe("Match", function () {
         var relationship = new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing');
         match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(startNode, relationship, endNodeNode));
         expect(match.toString()).toEqual("(p:Person {city:'westminster'})-[r:hasResidentialAddress]->(pl:Place)");
-    });
-
-    it("should produce a map of all parameters when there is one where clause", function () {
-        var node = new FactGem.wingman.Node('p', 'Person');
-        match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(node));
-        var where = match.where('n', 'age').greaterThanOrEqualTo(40);
-        expect(match.parameters()['age']).toEqual(40);
-    });
-
-    it("should produce a map of all parameters when there are two where clauses", function () {
-        var node = new FactGem.wingman.Node('p', 'Person');
-        match = new FactGem.wingman.Match(new FactGem.wingman.Pattern(node));
-        var where = match.where('n', 'age').greaterThanOrEqualTo(40).andWhere('n', 'gender').equals('male');
-        expect(match.parameters()['age']).toEqual(40);
-        expect(match.parameters()['gender']).toEqual('male');
     });
 
     it("correctly removes patterns", function () {

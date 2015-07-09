@@ -19,34 +19,6 @@ FactGem.wingman = (function namespace() {
     }
 
     /**
-     * Provides a String representation of this node that is compatible with parameterized Cypher syntax
-     * @returns {string}
-     */
-    Node.prototype.toParameterizedString = function () {
-        var value = "(" + this.name;
-        if (this.type) {
-            value = value + ":" + this.type;
-        }
-        var length = Object.keys(this.properties).length;
-        if (length) {
-            value = value + " {";
-            var propertyCount = 0;
-            for (var property in this.properties) {
-                if (this.properties.hasOwnProperty(property)) {
-                    value = value + property + ":{" + this.properties[property] + '}';
-                    propertyCount++;
-                    if (propertyCount < length) {
-                        value = value + ", ";
-                    }
-                }
-            }
-            value = value + "}";
-        }
-        value = value + ")";
-        return value;
-    };
-
-    /**
      * Returns the cypher representation of this node
      * @returns {string}
      */
@@ -108,44 +80,6 @@ FactGem.wingman = (function namespace() {
         this.properties = {};
     }
 
-    /**
-     * Provides a parameterized String representation of this Relationship that is compatible with Cypher syntax
-     * @returns {string}
-     */
-    Relationship.prototype.toParameterizedString = function () {
-        var value = "";
-        if (this.direction.toUpperCase() == "INCOMING") {
-            value = "<-";
-        } else {
-            value = "-";
-        }
-        value = value + "[" + this.name;
-        if (this.type) {
-            value = value + ":" + this.type;
-        }
-        var length = Object.keys(this.properties).length;
-        if (length) {
-            value = value + " {";
-            var propertyCount = 0;
-            for (var property in this.properties) {
-                if (this.properties.hasOwnProperty(property)) {
-                    value = value + property + ":{" + this.properties[property] + '}';
-                    propertyCount++;
-                    if (propertyCount < length) {
-                        value = value + ", ";
-                    }
-                }
-            }
-            value = value + "}";
-        }
-        value = value + "]";
-        if (this.direction.toUpperCase() == "OUTGOING") {
-            value = value + "->";
-        } else {
-            value = value + "-";
-        }
-        return value;
-    };
 
     /**
      * Provides a String representation of this Relationship that is compatible with Cypher syntax
@@ -267,23 +201,6 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
-     * Returns the parameters for this Match and all child Match clauses. Should not be called externally.
-     * @returns {{}}
-     */
-    Match.prototype.parameters = function () {
-        var params = {};
-        if (this.whereClause) {
-            params[this.whereClause.property] = this.whereClause.valueReference;
-            var childWhere = this.whereClause.whereClause;
-            while (childWhere) {
-                params[childWhere.property] = childWhere.valueReference;
-                childWhere = childWhere.whereClause;
-            }
-        }
-        return params;
-    };
-
-    /**
      * Removes a match clause from the cypher query
      * @param pattern {Match} Match clause to be removed
      * @returns {Cypher}
@@ -329,32 +246,7 @@ FactGem.wingman = (function namespace() {
         }
 
         if (this.whereClause) {
-            value += " " + this.whereClause.toString();
-        }
-        return value;
-    };
-
-    /**
-     * Parameterized Cypher text for this Match and contained Match clauses. Should not be directly called.
-     * @returns {string}
-     */
-    Match.prototype.toParameterizedString = function () {
-        var value = "";
-        for (var index = 0; index < this.patterns.length; index++) {
-            value = value + this.patterns[index].start.toParameterizedString();
-            if (this.patterns[index].rel) {
-                value = value + this.patterns[index].rel.toParameterizedString();
-                if (this.patterns[index].end) { // don't even look for an end node if there is no rel
-                    value = value + this.patterns[index].end.toParameterizedString();
-                }
-            }
-            if (index < this.patterns.length - 1) {
-                value = value + ', '
-            }
-        }
-
-        if (this.whereClause) {
-            value += " " + this.whereClause.toParameterizedString();
+            value += " where " + this.whereClause.toString();
         }
         return value;
     };
@@ -365,125 +257,101 @@ FactGem.wingman = (function namespace() {
      * @param property {String} The name of the property
      * @returns {Where}
      */
-    Match.prototype.where = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        this.whereClause = whereClause;
-        return whereClause;
+    Match.prototype.where = function (where) {
+        this.whereClause = where;
+        return this.whereClause;
     };
 
     /**
-     * Creates a new Where clause associated with this Match that is based on the existence of a property
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
+     * @memberof wingman
+     * Creates a new Comparison
+     * @param seed The variable name. Must match an existing name in the associated Match clause
+     * @param property the name of the property on the variable for which the comparison will be performed
+     * @param parent The {Match} clause to which this where belongs
+     * @constructor
      */
-    Match.prototype.whereHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkHasProperty = true;
-        this.whereClause = whereClause;
-        return whereClause;
+    function Comparison(variable, property, operator, value) {
+        this.comparisonVariable = variable;
+        this.comparisonProperty = property;
+        if (operator) {
+            this.comparisonOperator = operator.toUpperCase();
+        } else {
+            this.comparisonOperator = "";
+        }
+        this.comparisonValue = value;
+        this.joiner = "";
+        this.parent = null;
+    }
+
+    Comparison.prototype.toString = function () {
+        var value = "";
+        switch (this.comparisonOperator) {
+            case "=":
+            case "<":
+            case ">":
+            case "<>":
+            case "<=":
+            case ">=":
+                value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " ";
+                if (typeof this.comparisonValue == "string") {
+                    value += "'" + this.comparisonValue + "'";
+                } else {
+                    value += this.comparisonValue;
+                }
+                break;
+            case "HAS":
+                value += "HAS(" + this.comparisonVariable + "." + this.comparisonProperty + ")";
+                break;
+            case "NOT HAS":
+                value += "NOT HAS(" + this.comparisonVariable + "." + this.comparisonProperty + ")";
+                break;
+            default:
+                value = "";
+                break;
+        }
+        return value;
     };
 
     /**
-     * Creates a new Where clause associated with this Match that is based on the non-existence of a property
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
+     * @memberof wingman
+     *
+     * @constructor
      */
-    Match.prototype.whereNotHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkNotHasProperty = true;
-        this.whereClause = whereClause;
-        return whereClause;
+    function Group(whereClause, joiner) {
+        this.where = whereClause;
+        this.joiner = joiner;
+        this.parent = null;
+    }
+
+    Group.prototype.toString = function () {
+        return this.where.toString();
     };
 
     /**
      * @memberof wingman
      * Creates a new Where clause
-     * @param name The variable name. Must match an existing name in the associated Match clause
+     * @param seed The variable name. Must match an existing name in the associated Match clause
      * @param property the name of the property on the variable for which the comparison will be performed
      * @param parent The {Match} clause to which this where belongs
      * @constructor
      */
-    function Where(name, property, parent) {
-        if (name instanceof Where) {
-            this.containedWhereGroup = name;
-            this.name = null;
-            this.property = null;
-            this.parent = null;
+    function Where(seed) {
+        if (seed instanceof Comparison) {
+            this.comparisons = [seed];
+            seed.parent = this;
+            this.groups = [];
         } else {
-            this.name = name;
-            this.property = property;
-            this.parent = parent;
-            this.containedWhereGroup = null;
+            if (seed instanceof Group) {
+                seed.parent = this;
+                this.comparisons = [];
+                this.groups = [seed];
+            } else {
+                this.comparisons = [];
+                this.groups = [];
+            }
         }
-        this.operator = null;
-        this.valueReference = null;
-        this.whereClause = null;
-        this.joiningOperator = null;
-        this.checkHasProperty = false;
-        this.checkNotHasProperty = false;
+
     }
-
-    /**
-     * Creates a new Where clause that is based on the existence of a property
-     * and is joined to the current where clause with an AND
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
-     */
-    Where.prototype.andWhereHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkHasProperty = true;
-        this.whereClause = whereClause;
-        this.joiningOperator = 'AND';
-        return this.whereClause;
-    };
-
-    /**
-     * Creates a new Where clause that is based on the non-existence of a property
-     * and is joined to the current where clause with an AND
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
-     */
-    Where.prototype.andWhereNotHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkNotHasProperty = true;
-        this.whereClause = whereClause;
-        this.joiningOperator = 'AND';
-        return this.whereClause;
-    };
-
-    /**
-     * Creates a new Where clause that is based on the existence of a property
-     * and is joined to the current where clause with an OR
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
-     */
-    Where.prototype.orWhereHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkHasProperty = true;
-        this.whereClause = whereClause;
-        this.joiningOperator = 'OR';
-        return this.whereClause;
-    };
-
-    /**
-     * Creates a new Where clause that is based on the non-existence of a property
-     * and is joined to the current where clause with an OR
-     * @param name {String} The previously assigned name of the node to which this where clause pertains
-     * @param property {String} The name of the property
-     * @returns {Where}
-     */
-    Where.prototype.orWhereNotHasProperty = function (name, property) {
-        var whereClause = new Where(name, property, this);
-        whereClause.checkNotHasProperty = true;
-        this.whereClause = whereClause;
-        this.joiningOperator = 'OR';
-        return this.whereClause;
-    };
 
     /**
      * Adds a new Where clause that is joined to the previous clause via the AND operator
@@ -491,15 +359,27 @@ FactGem.wingman = (function namespace() {
      * @param property {String} the name of the property on the variable for which the comparison will be performed
      * @returns {Where}
      */
-    Where.prototype.andWhere = function (name, property) {
-        this.joiningOperator = 'AND';
-        if (name instanceof Where) {
-            this.containedWhereGroup = name;
-            return this;
+    Where.prototype.andWhere = function (clause) {
+        if (clause instanceof Comparison) {
+            this.comparisons.push(clause);
+            clause.parent = this;
+            var numberOfCurrentComparisons = this.comparisons.length;
+            if (numberOfCurrentComparisons > 0) {
+                // the previous comparison in the array needs the correct joiner, AND in this case
+                this.comparisons[numberOfCurrentComparisons - 2].joiner = "AND";
+            }
         } else {
-            this.whereClause = new Where(name, property, this);
-            return this.whereClause;
+            if (clause instanceof Group) {
+                this.groups.push(clause);
+                clause.parent = this;
+                var numberOfCurrentGroups = this.groups.length;
+                if (numberOfCurrentGroups > 0) {
+                    // the previous group in the array needs the correct joiner, AND in this case
+                    this.groups[numberOfCurrentGroups - 2].joiner = "AND";
+                }
+            }
         }
+        return this;
     };
 
     /**
@@ -508,93 +388,27 @@ FactGem.wingman = (function namespace() {
      * @param property String} The name of the property on the variable for which the comparison will be performed
      * @returns {Where}
      */
-    Where.prototype.orWhere = function (name, property) {
-        this.joiningOperator = 'OR';
-        if (name instanceof Where) {
-            this.containedWhereGroup = name;
-            return this;
+    Where.prototype.orWhere = function (clause) {
+        if (clause instanceof Comparison) {
+            this.comparisons.push(clause);
+            clause.parent = this;
+            var numberOfCurrentComparisons = this.comparisons.length;
+            if (numberOfCurrentComparisons > 0) {
+                // the previous comparison in the array needs the correct joiner, AND in this case
+                this.comparisons[numberOfCurrentComparisons - 2].joiner = "OR";
+            }
         } else {
-            this.whereClause = new Where(name, property, this);
-            return this.whereClause;
-        }
-    };
-
-    /**
-     * Sets the operator of the Where clause to =
-     * @returns {Where}
-     */
-    Where.prototype.equals = function (value) {
-        this.operator = '=';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the Where clause to <
-     * @returns {Where}
-     */
-    Where.prototype.lessThan = function (value) {
-        this.operator = '<';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the Where clause to >
-     * @returns {Where}
-     */
-    Where.prototype.greaterThan = function (value) {
-        this.operator = '>';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the Where clause to <>
-     * @returns {Where}
-     */
-    Where.prototype.notEqual = function (value) {
-        this.operator = '<>';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the Where clause to <=
-     * @returns {Where}
-     */
-    Where.prototype.lessThanOrEqualTo = function (value) {
-        this.operator = '<=';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Sets the operator of the Where clause to >=
-     * @returns {Where}
-     */
-    Where.prototype.greaterThanOrEqualTo = function (value) {
-        this.operator = '>=';
-        this.valueReference = value;
-        return this;
-    };
-
-    /**
-     * Generates the parameterized cypher for this where clause and all parent where clauses
-     * @returns {string}
-     */
-    Where.prototype.toParameterizedString = function () {
-        var firstWhere = this;
-        var foundFirstWhere = false;
-        while (!foundFirstWhere) {
-            if (firstWhere.parent && firstWhere.parent instanceof Where) {
-                firstWhere = firstWhere.parent;
-            } else {
-                foundFirstWhere = true;
+            if (clause instanceof Group) {
+                this.groups.push(clause);
+                clause.parent = this;
+                var numberOfCurrentGroups = this.groups.length;
+                if (numberOfCurrentGroups > 0) {
+                    // the previous group in the array needs the correct joiner, AND in this case
+                    this.groups[numberOfCurrentGroups - 2].joiner = "OR";
+                }
             }
         }
-
-        return firstWhere.parameterizedStringValue();
+        return this;
     };
 
     /**
@@ -602,92 +416,25 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Where.prototype.toString = function () {
-        var firstWhere = this;
-        var foundFirstWhere = false;
-        while (!foundFirstWhere) {
-            if (firstWhere.parent && firstWhere.parent instanceof Where) {
-                firstWhere = firstWhere.parent;
-            } else {
-                foundFirstWhere = true;
+        var value = "";
+        for (var index = 0; index < this.comparisons.length; index++) {
+            value += this.comparisons[index].toString();
+            if (index < this.comparisons.length - 1) {
+                value += " " + this.comparisons[index].joiner + " ";
             }
         }
-
-        return firstWhere.stringValue();
-    };
-
-    /**
-     * Recursive function to return the parameterized String value of this {Where} clause. Should only be called internally by to toString() method
-     * @returns {string}
-     */
-    Where.prototype.parameterizedStringValue = function () {
-        var value = "where ";
-        if (this.checkHasProperty) {
-            value += "has(" + this.name + '.' + this.property + ")";
-        } else {
-            if (this.checkNotHasProperty) {
-                value += "NOT has(" + this.name + '.' + this.property + ")";
-            } else {
-                value += this.name + '.' + this.property + this.operator + '{' + this.valueReference + '}';
+        if (this.groups.length > 0 && this.toString.length > 0) {
+            value += " "; // put a space between last comparison and first group
+        }
+        for (index = 0; index < this.groups.length; index++) {
+            value += "(" + this.groups[index].toString() + ")";
+            if (index < this.groups.length - 1) {
+                value += " " + this.groups[index].joiner + " ";
             }
-        }
-        if (this.whereClause) {
-            var childString = this.whereClause.parameterizedStringValue();
-            value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
-        }
-        if (this.containedWhereGroup) {
-            var childGroupString = this.containedWhereGroup.toParameterizedString();
-            value += " " + this.joiningOperator + " (" + childGroupString.substr(5, childGroupString.length) + " )";
         }
         return value;
     };
 
-    /**
-     * Recursive function to return the String value of this {Where} clause. Should only be called internally by to toString() method
-     * @returns {string}
-     */
-    Where.prototype.stringValue = function () {
-        var value = "where ";
-        if (this.checkHasProperty) {
-            value += "has(" + this.name + '.' + this.property + ")";
-        } else {
-            if (this.checkNotHasProperty) {
-                value += "NOT has(" + this.name + '.' + this.property + ")";
-            } else {
-                if (typeof this.valueReference == 'string') {
-                    value += this.name + '.' + this.property + this.operator + "'" + this.valueReference + "'";
-                } else {
-                    value += this.name + '.' + this.property + this.operator + this.valueReference;
-                }
-            }
-        }
-        if (this.whereClause) {
-            var childString = this.whereClause.stringValue();
-            value += " " + this.joiningOperator + childString.substr(5, childString.length); // remove initial 'where'
-        }
-        if (this.containedWhereGroup) {
-            var childGroupString = this.containedWhereGroup.toString();
-            value += " " + this.joiningOperator + " (" + childGroupString.substr(5, childGroupString.length) + " )";
-        }
-        return value;
-    };
-
-    /**
-     * Returns the parameters of the where clause and all child clauses
-     * @returns {{}}
-     */
-    Where.prototype.params = function () {
-        var params = {};
-        params[this.property] = this.valueReference;
-        if (this.whereClause) {
-            var childparams = this.whereClause.params();
-            for (var property in childparams) {
-                if (childparams.hasOwnProperty(property)) {
-                    params[property] = childparams[property];
-                }
-            }
-        }
-        return params;
-    };
 
     /**
      * @memberof wingman
@@ -715,7 +462,6 @@ FactGem.wingman = (function namespace() {
         this.matchClause = match;
         return this;
     };
-
 
     /**
      * Adds an optional match clause to the query
@@ -804,57 +550,6 @@ FactGem.wingman = (function namespace() {
         return params;
     };
 
-    /**
-     * Returns a parameterized cyhper representation of the current state of this object
-     * @returns {string}
-     */
-    Cypher.prototype.toParameterizedString = function () {
-        var value = 'match ' + this.matchClause.toParameterizedString();
-
-        if (this.optionalMatches.length) {
-            value += ' optional match ';
-        }
-        for (index in this.optionalMatches) {
-            //noinspection JSUnfilteredForInLoop
-            value = value + this.optionalMatches[index].toParameterizedString();
-            if (index + 1 < this.optionalMatches.length) {
-                value = value + ", ";
-            }
-        }
-        if (this.returns.length) {
-            value += ' return ';
-            if (this.distinct) {
-                value += 'distinct ';
-            }
-            for (index in this.returns) {
-                //noinspection JSUnfilteredForInLoop
-                value += this.returns[index];
-                if (index + 1 < this.returns.length) {
-                    value = value + ", ";
-                }
-            }
-        }
-        if (this.orderByVariable) {
-            value += ' order by ' + this.orderByVariable;
-            if (this.orderByProperty) {
-                value += '.' + this.orderByProperty;
-            }
-            if (this.orderDescending) {
-                value += ' desc'
-            }
-        }
-
-        if (this.skip) {
-            value += ' skip ' + this.skip;
-        }
-
-        if (this.limit) {
-            value += ' limit ' + this.limit;
-        }
-
-        value += ';';
-        return value;
-    };
 
     /**
      * Returns a cyhper representation of the current state of this object
@@ -1041,7 +736,9 @@ FactGem.wingman = (function namespace() {
         Pattern: Pattern,
         Where: Where,
         Cypher: Cypher,
-        Return: Return
+        Return: Return,
+        Comparison: Comparison,
+        Group: Group
     };
 }());
 
