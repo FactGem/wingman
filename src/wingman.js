@@ -283,6 +283,23 @@ FactGem.wingman = (function namespace() {
         this.parent = null;
     }
 
+    Comparison.prototype.equals = function (value) {
+        this.comparisonOperator = '=';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.notEqual = function (value) {
+        this.comparisonOperator = '<>';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.exists = function () {
+        this.comparisonOperator = 'HAS';
+        return this;
+    };
+
     Comparison.prototype.toString = function () {
         var value = "";
         switch (this.comparisonOperator) {
