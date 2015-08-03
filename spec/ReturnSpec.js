@@ -19,10 +19,14 @@ describe("Return", function () {
         expect(returnClause.toString()).toEqual('count(p.gender)')
     });
 
-
     it("should produce correct cypher when returning count of variable", function () {
         returnClause = new FactGem.wingman.Return().countResults().variable('p');
         expect(returnClause.toString()).toEqual('count(p)')
+    });
+
+    it("should produce correct cypher when returning count of variable using AS", function () {
+        returnClause = new FactGem.wingman.Return().countResults().variable('p').as('total');
+        expect(returnClause.toString()).toEqual('count(p) AS total')
     });
 
 });

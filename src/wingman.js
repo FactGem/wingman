@@ -632,6 +632,7 @@ FactGem.wingman = (function namespace() {
         this.propertyName = null;
         this.count = false;
         this.containingCypher = cypher;
+        this.label = '';
     }
 
     /**
@@ -651,6 +652,11 @@ FactGem.wingman = (function namespace() {
      */
     Return.prototype.property = function (property) {
         this.propertyName = property;
+        return this;
+    };
+
+    Return.prototype.as = function (label) {
+        this.label = label;
         return this;
     };
 
@@ -738,6 +744,9 @@ FactGem.wingman = (function namespace() {
         }
         if (this.count) { // count statement
             value += ')'
+        }
+        if (this.label) {
+            value += ' AS ' + this.label;
         }
         return value;
     };

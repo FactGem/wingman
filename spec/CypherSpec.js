@@ -73,6 +73,18 @@ describe("Cypher", function () {
         expect(cypher.toString()).toEqual("match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city <> 'westminster' return p;");
     });
 
+    it("produces correct cypher using fluent match, where and single return as AS", function () {
+        cypher = new FactGem.wingman.Cypher();
+        var pattern = new FactGem.wingman.Pattern();
+        pattern.startNode(new FactGem.wingman.Node('p', 'Person'))
+            .relationship(new FactGem.wingman.Relationship('r', 'hasResidentialAddress', 'outgoing'))
+            .endNode(new FactGem.wingman.Node('pl', 'Place'));
+        var match = new FactGem.wingman.Match(pattern);
+        match.where(new FactGem.wingman.Comparison('pl', 'city').notEqual('westminster'));
+        cypher.match(match).andReturn().variable('p').as('Person');
+        expect(cypher.toString()).toEqual("match (p:Person)-[r:hasResidentialAddress]->(pl:Place) where pl.city <> 'westminster' return p AS Person;");
+    });
+
     it("produces correct cypher using fluent match, where and multiple returns", function () {
         cypher = new FactGem.wingman.Cypher();
         var pattern = new FactGem.wingman.Pattern();
