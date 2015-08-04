@@ -9,6 +9,11 @@ describe("Where", function () {
         expect(where.toString()).toEqual("n.gender = 'female'")
     });
 
+    it("should produce valid parameterized cypher for basic equals comparison", function () {
+        where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'gender'));
+        expect(where.toParameterizedString()).toEqual("n.gender = {gender}")
+    });
+
     it("should produce valid cypher for two basic equals comparisons joined by AND", function () {
         where = new FactGem.wingman.Where(new FactGem.wingman.Comparison('n', 'gender', '=', 'female')).andWhere(new FactGem.wingman.Comparison('n', 'age', '=', 12));
         expect(where.toString()).toEqual("n.gender = 'female' AND n.age = 12")

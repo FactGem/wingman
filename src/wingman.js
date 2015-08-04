@@ -252,6 +252,31 @@ FactGem.wingman = (function namespace() {
     };
 
     /**
+     * Cypher text for this Match and contained Match clauses. Should not be directly called.
+     * @returns {string}
+     */
+    Match.prototype.toParameterizedString = function () {
+        var value = "";
+        for (var index = 0; index < this.patterns.length; index++) {
+            value = value + this.patterns[index].start.toString();
+            if (this.patterns[index].rel) {
+                value = value + this.patterns[index].rel.toString();
+                if (this.patterns[index].end) { // don't even look for an end node if there is no rel
+                    value = value + this.patterns[index].end.toString();
+                }
+            }
+            if (index < this.patterns.length - 1) {
+                value = value + ', '
+            }
+        }
+
+        if (this.whereClause) {
+            value += " where " + this.whereClause.toParameterizedString();
+        }
+        return value;
+    };
+
+    /**
      * Creates a new Where clause that is associated with this match
      * @param name {String} The previously assigned name of the node to which this where clause pertains
      * @param property {String} The name of the property
@@ -329,6 +354,32 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    Comparison.prototype.toParameterizedString = function () {
+        var value = "";
+        switch (this.comparisonOperator) {
+            case "=":
+            case "<":
+            case ">":
+            case "<>":
+            case "<=":
+            case ">=":
+                value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " {";
+                value += this.comparisonValue + "}";
+                break;
+            case "HAS":
+                value += "HAS(" + this.comparisonVariable + "." + this.comparisonProperty + ")";
+                break;
+            case "NOT HAS":
+                value += "NOT HAS(" + this.comparisonVariable + "." + this.comparisonProperty + ")";
+                break;
+            default:
+                value = "";
+                break;
+        }
+        return value;
+    };
+
+
     /**
      * @memberof wingman
      *
@@ -342,6 +393,10 @@ FactGem.wingman = (function namespace() {
 
     Group.prototype.toString = function () {
         return this.where.toString();
+    };
+
+    Group.prototype.toParameterizedString = function () {
+        return this.where.toParameterizedString();
     };
 
     /**
@@ -452,6 +507,30 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    /**
+     * Generates the cypher for this where clause and all parent where clauses
+     * @returns {string}
+     */
+    Where.prototype.toParameterizedString = function () {
+        var value = "";
+        for (var index = 0; index < this.comparisons.length; index++) {
+            value += this.comparisons[index].toParameterizedString();
+            if (index < this.comparisons.length - 1) {
+                value += " " + this.comparisons[index].joiner + " ";
+            }
+        }
+        if (this.groups.length > 0 && this.toParameterizedString.length > 0) {
+            value += " "; // put a space between last comparison and first group
+        }
+        for (index = 0; index < this.groups.length; index++) {
+            value += "(" + this.groups[index].toParameterizedString() + ")";
+            if (index < this.groups.length - 1) {
+                value += " " + this.groups[index].joiner + " ";
+            }
+        }
+        return value;
+    };
+
 
     /**
      * @memberof wingman
@@ -551,22 +630,6 @@ FactGem.wingman = (function namespace() {
         return returnClause;
     };
 
-    /**
-     * Generates the parameters for this cypher statement
-     * @returns {{}}
-     */
-    Cypher.prototype.parameters = function () {
-        var params = {};
-        for (var index in this.matches) {
-            //noinspection JSUnfilteredForInLoop
-            var childParams = this.matches[index].parameters();
-            for (var param in childParams) {
-                params[param] = childParams[param];
-            }
-        }
-        return params;
-    };
-
 
     /**
      * Returns a cyhper representation of the current state of this object
@@ -581,6 +644,59 @@ FactGem.wingman = (function namespace() {
         for (index = 0; index < length; index++) {
             //noinspection JSUnfilteredForInLoop
             value = value + this.optionalMatches[index];
+            if (index + 1 < this.optionalMatches.length) {
+                value = value + ", ";
+            }
+        }
+        if (this.returns.length) {
+            value += ' return ';
+            if (this.distinct) {
+                value += 'distinct ';
+            }
+            length = this.returns.length;
+            for (index = 0; index < length; index++) {
+                //noinspection JSUnfilteredForInLoop
+                value += this.returns[index];
+                if (index + 1 < this.returns.length) {
+                    value = value + ", ";
+                }
+            }
+        }
+        if (this.orderByVariable) {
+            value += ' order by ' + this.orderByVariable;
+            if (this.orderByProperty) {
+                value += '.' + this.orderByProperty;
+            }
+            if (this.orderDescending) {
+                value += ' desc'
+            }
+        }
+
+        if (this.skip) {
+            value += ' skip ' + this.skip;
+        }
+
+        if (this.limit) {
+            value += ' limit ' + this.limit;
+        }
+
+        value += ';';
+        return value;
+    };
+
+    /**
+     * Returns a cyhper representation of the current state of this object
+     * @returns {string}
+     */
+    Cypher.prototype.toParameterizedString = function () {
+        var value = 'match ' + this.matchClause.toParameterizedString();
+        if (this.optionalMatches.length) {
+            value += ' optional match ';
+        }
+        length = this.optionalMatches.length;
+        for (index = 0; index < length; index++) {
+            //noinspection JSUnfilteredForInLoop
+            value = value + this.optionalMatches[index].toParameterizedString();
             if (index + 1 < this.optionalMatches.length) {
                 value = value + ", ";
             }
