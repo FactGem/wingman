@@ -320,6 +320,12 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    Comparison.prototype.regex = function (value) {
+        this.comparisonOperator = '=~';
+        this.comparisonValue = value;
+        return this;
+    };
+
     Comparison.prototype.exists = function () {
         this.comparisonOperator = 'HAS';
         return this;
