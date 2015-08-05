@@ -334,6 +334,7 @@ FactGem.wingman = (function namespace() {
             case "<>":
             case "<=":
             case ">=":
+            case "=~":
                 value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " ";
                 if (typeof this.comparisonValue == "string") {
                     value += "'" + this.comparisonValue + "'";
@@ -363,6 +364,7 @@ FactGem.wingman = (function namespace() {
             case "<>":
             case "<=":
             case ">=":
+            case "=~":
                 value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " {";
                 value += this.comparisonValue + "}";
                 break;
