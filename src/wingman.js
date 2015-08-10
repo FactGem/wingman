@@ -66,7 +66,7 @@ FactGem.wingman = (function namespace() {
      * Creates a Relationship between two {Node} objects with a name, an optional type and a direction
      * @param name {String} the name that will be used to identify this rel
      * @param type {String} The type of the rel. Type is optional.
-     * @param direction {String} The direction of the node. Can be either incoming or outgoing.
+     * @param direction {String} The direction of the node. Can be either incoming, outgoing, or both.
      * @constructor
      */
     function Relationship(name, type, direction) {
@@ -161,7 +161,7 @@ FactGem.wingman = (function namespace() {
 
     /**
      * Sets the Relationship for the Match
-     * @param relationship {Relationship}
+     * @param relationship {FactGem.wingman.Relationship}
      * @returns {Pattern}
      */
     Pattern.prototype.relationship = function (relationship) {
@@ -171,7 +171,7 @@ FactGem.wingman = (function namespace() {
 
     /**
      * Sets the end node for the Match
-     * @param endnode {Node}
+     * @param endnode {FactGem.wingman.Node}
      * @returns {Pattern}
      */
     Pattern.prototype.endNode = function (endnode) {
