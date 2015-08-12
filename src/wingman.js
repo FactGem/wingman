@@ -306,7 +306,13 @@ FactGem.wingman = (function namespace() {
         this.comparisonValue = value;
         this.joiner = "";
         this.parent = null;
+        this.wrapWithHead = false;
     }
+
+    Comparison.prototype.useHead = function () {
+        this.wrapWithHead = true;
+        return this;
+    };
 
     Comparison.prototype.equals = function (value) {
         this.comparisonOperator = '=';
@@ -316,6 +322,30 @@ FactGem.wingman = (function namespace() {
 
     Comparison.prototype.notEqual = function (value) {
         this.comparisonOperator = '<>';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.greaterThan = function (value) {
+        this.comparisonOperator = '>';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.greaterThanOrEqualTo = function (value) {
+        this.comparisonOperator = '>=';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.lessThan = function (value) {
+        this.comparisonOperator = '<';
+        this.comparisonValue = value;
+        return this;
+    };
+
+    Comparison.prototype.lessThanOrEqualTo = function (value) {
+        this.comparisonOperator = '<=';
         this.comparisonValue = value;
         return this;
     };
@@ -341,7 +371,11 @@ FactGem.wingman = (function namespace() {
             case "<=":
             case ">=":
             case "=~":
-                value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " ";
+                var leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                if (this.wrapWithHead) {
+                    leftArg = 'HEAD(' + leftArg + ')';
+                }
+                value += leftArg + " " + this.comparisonOperator + " ";
                 if (typeof this.comparisonValue == "string") {
                     value += "'" + this.comparisonValue + "'";
                 } else {
@@ -371,7 +405,11 @@ FactGem.wingman = (function namespace() {
             case "<=":
             case ">=":
             case "=~":
-                value += this.comparisonVariable + "." + this.comparisonProperty + " " + this.comparisonOperator + " {";
+                var leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                if (this.wrapWithHead) {
+                    leftArg = 'HEAD(' + leftArg + ')';
+                }
+                value += leftArg + " " + this.comparisonOperator + " {";
                 value += this.comparisonValue + "}";
                 break;
             case "HAS":
@@ -397,14 +435,28 @@ FactGem.wingman = (function namespace() {
         this.where = whereClause;
         this.joiner = joiner;
         this.parent = null;
+        this.negated = false;
     }
 
+    Group.prototype.not = function () {
+        this.negated = true;
+        return this;
+    };
+
     Group.prototype.toString = function () {
-        return this.where.toString();
+        var value = '(' + this.where.toString() + ')';
+        if (this.negated) {
+            value = 'NOT' + value;
+        }
+        return value;
     };
 
     Group.prototype.toParameterizedString = function () {
-        return this.where.toParameterizedString();
+        var value = '(' + this.where.toParameterizedString() + ')';
+        if (this.negated) {
+            value = 'NOT' + value;
+        }
+        return value;
     };
 
     /**
@@ -416,21 +468,8 @@ FactGem.wingman = (function namespace() {
      * @constructor
      */
     function Where(seed) {
-        if (seed instanceof Comparison) {
-            this.comparisons = [seed];
-            seed.parent = this;
-            this.groups = [];
-        } else {
-            if (seed instanceof Group) {
-                seed.parent = this;
-                this.comparisons = [];
-                this.groups = [seed];
-            } else {
-                this.comparisons = [];
-                this.groups = [];
-            }
-        }
-
+        this.clauses = [seed];
+        seed.parent = this;
     }
 
     /**
@@ -440,24 +479,12 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.andWhere = function (clause) {
-        if (clause instanceof Comparison) {
-            this.comparisons.push(clause);
-            clause.parent = this;
-            var numberOfCurrentComparisons = this.comparisons.length;
-            if (numberOfCurrentComparisons > 0) {
-                // the previous comparison in the array needs the correct joiner, AND in this case
-                this.comparisons[numberOfCurrentComparisons - 2].joiner = "AND";
-            }
-        } else {
-            if (clause instanceof Group) {
-                this.groups.push(clause);
-                clause.parent = this;
-                var numberOfCurrentGroups = this.groups.length;
-                if (numberOfCurrentGroups > 0) {
-                    // the previous group in the array needs the correct joiner, AND in this case
-                    this.groups[numberOfCurrentGroups - 2].joiner = "AND";
-                }
-            }
+        this.clauses.push(clause);
+        clause.parent = this;
+        var numberOfCurrentClauses = this.clauses.length;
+        if (numberOfCurrentClauses > 0) {
+            // the previous clause in the array needs the correct joiner, AND in this case
+            this.clauses[numberOfCurrentClauses - 2].joiner = "AND";
         }
         return this;
     };
@@ -469,24 +496,12 @@ FactGem.wingman = (function namespace() {
      * @returns {Where}
      */
     Where.prototype.orWhere = function (clause) {
-        if (clause instanceof Comparison) {
-            this.comparisons.push(clause);
-            clause.parent = this;
-            var numberOfCurrentComparisons = this.comparisons.length;
-            if (numberOfCurrentComparisons > 0) {
-                // the previous comparison in the array needs the correct joiner, AND in this case
-                this.comparisons[numberOfCurrentComparisons - 2].joiner = "OR";
-            }
-        } else {
-            if (clause instanceof Group) {
-                this.groups.push(clause);
-                clause.parent = this;
-                var numberOfCurrentGroups = this.groups.length;
-                if (numberOfCurrentGroups > 0) {
-                    // the previous group in the array needs the correct joiner, AND in this case
-                    this.groups[numberOfCurrentGroups - 2].joiner = "OR";
-                }
-            }
+        this.clauses.push(clause);
+        clause.parent = this;
+        var numberOfCurrentClauses = this.clauses.length;
+        if (numberOfCurrentClauses > 0) {
+            // the previous clause in the array needs the correct joiner, OR in this case
+            this.clauses[numberOfCurrentClauses - 2].joiner = "OR";
         }
         return this;
     };
@@ -497,19 +512,10 @@ FactGem.wingman = (function namespace() {
      */
     Where.prototype.toString = function () {
         var value = "";
-        for (var index = 0; index < this.comparisons.length; index++) {
-            value += this.comparisons[index].toString();
-            if (index < this.comparisons.length - 1) {
-                value += " " + this.comparisons[index].joiner + " ";
-            }
-        }
-        if (this.groups.length > 0 && this.toString.length > 0) {
-            value += " "; // put a space between last comparison and first group
-        }
-        for (index = 0; index < this.groups.length; index++) {
-            value += "(" + this.groups[index].toString() + ")";
-            if (index < this.groups.length - 1) {
-                value += " " + this.groups[index].joiner + " ";
+        for (var index = 0; index < this.clauses.length; index++) {
+            value += this.clauses[index].toString();
+            if (index < this.clauses.length - 1) {
+                value += " " + this.clauses[index].joiner + " ";
             }
         }
         return value;
@@ -521,19 +527,10 @@ FactGem.wingman = (function namespace() {
      */
     Where.prototype.toParameterizedString = function () {
         var value = "";
-        for (var index = 0; index < this.comparisons.length; index++) {
-            value += this.comparisons[index].toParameterizedString();
-            if (index < this.comparisons.length - 1) {
-                value += " " + this.comparisons[index].joiner + " ";
-            }
-        }
-        if (this.groups.length > 0 && this.toParameterizedString.length > 0) {
-            value += " "; // put a space between last comparison and first group
-        }
-        for (index = 0; index < this.groups.length; index++) {
-            value += "(" + this.groups[index].toParameterizedString() + ")";
-            if (index < this.groups.length - 1) {
-                value += " " + this.groups[index].joiner + " ";
+        for (var index = 0; index < this.clauses.length; index++) {
+            value += this.clauses[index].toParameterizedString();
+            if (index < this.clauses.length - 1) {
+                value += " " + this.clauses[index].joiner + " ";
             }
         }
         return value;
