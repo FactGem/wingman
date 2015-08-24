@@ -150,6 +150,25 @@ FactGem.wingman = (function namespace() {
     }
 
     /**
+     * Returns an array of variables per type
+     * @param type  The type to look for (e.g. Person in p1:Person)
+     * @returns {Array}
+     */
+    Pattern.prototype.getVariablesByType = function (type) {
+        var variables = [];
+        if (this.start && this.start.type === type) {
+            variables.push(this.start.name);
+        }
+        if (this.rel && this.rel.type === type) {
+            variables.push(this.rel.name);
+        }
+        if (this.end && this.end.type === type) {
+            variables.push(this.end.name);
+        }
+        return variables;
+    };
+
+    /**
      * sets the Start node for the Match
      * @param startnode {Node}
      * @returns {Pattern}
@@ -186,9 +205,35 @@ FactGem.wingman = (function namespace() {
      * @constructor
      */
     function Match(pattern) {
+        this.usingIndexes = [];
         this.whereClause = null;
         this.patterns = [pattern];
     }
+
+    /**
+     * Returns an array of variables per type
+     * @param type  The type to look for (e.g. Person in p1:Person)
+     * @returns {Array}
+     */
+    Match.prototype.getVariablesByType = function (type) {
+        var variables = [];
+        if (type && this.patterns) {
+            for (var i = 0; i < this.patterns.length; i++) {
+                variables = variables.concat(this.patterns[i].getVariablesByType(type));
+            }
+        }
+        return variables;
+    };
+
+    /**
+     * Adds an using index clause to the query
+     * @param usingIndex {FactGem.wingman.UsingIndex} UsingIndex clause to be added
+     * @returns {Match}
+     */
+    Match.prototype.addUsingIndex = function (usingIndex) {
+        this.usingIndexes.push(usingIndex);
+        return this;
+    };
 
     /**
      * Adds another pattern to the match clause to further define the match
@@ -245,6 +290,12 @@ FactGem.wingman = (function namespace() {
             }
         }
 
+        if (this.usingIndexes && this.usingIndexes.length > 0) {
+            for (index = 0; index < this.usingIndexes.length; index++) {
+                value += " " + this.usingIndexes[index].toString();
+            }
+        }
+
         if (this.whereClause) {
             value += " where " + this.whereClause.toString();
         }
@@ -270,6 +321,12 @@ FactGem.wingman = (function namespace() {
             }
         }
 
+        if (this.usingIndexes && this.usingIndexes.length > 0) {
+            for (index = 0; index < this.usingIndexes.length; index++) {
+                value += " " + this.usingIndexes[index].toString();
+            }
+        }
+
         if (this.whereClause) {
             value += " where " + this.whereClause.toParameterizedString();
         }
@@ -285,6 +342,37 @@ FactGem.wingman = (function namespace() {
     Match.prototype.where = function (where) {
         this.whereClause = where;
         return this.whereClause;
+    };
+
+    /**
+     * @memberof wingman
+     * @param variable {String} The variable that is part of the USING INDEX clause, e.g. p in p:Person(gender)
+     * @param type {String} The type that is part of the USING INDEX clause, e.g. Person in p:Person(gender)
+     * @param property {String} The property that is part of the USING INDEX clause, e.g. gender in p:Person(gender)
+     */
+    function UsingIndex(variable, type, property) {
+        this.variable = variable;
+        this.type = type;
+        this.property = property;
+    }
+
+    UsingIndex.prototype.variable = function (variable) {
+        this.variable = variable;
+        return this;
+    };
+
+    UsingIndex.prototype.type = function (type) {
+        this.type = type;
+        return this;
+    };
+
+    UsingIndex.prototype.property = function (property) {
+        this.property = property;
+        return this;
+    };
+
+    UsingIndex.prototype.toString = function () {
+        return "using index " + this.variable + ":" + this.type + "(" + this.property + ")";
     };
 
     /**
@@ -361,6 +449,11 @@ FactGem.wingman = (function namespace() {
         return this;
     };
 
+    Comparison.prototype.notExists = function () {
+        this.comparisonOperator = 'NOT HAS';
+        return this;
+    };
+
     Comparison.prototype.toString = function () {
         var value = "";
         switch (this.comparisonOperator) {
@@ -371,7 +464,12 @@ FactGem.wingman = (function namespace() {
             case "<=":
             case ">=":
             case "=~":
-                var leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                var leftArg = null;
+                if (this.comparisonVariable) {
+                    leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                } else {
+                    leftArg = this.comparisonProperty;
+                }
                 if (this.wrapWithHead) {
                     leftArg = 'HEAD(' + leftArg + ')';
                 }
@@ -405,7 +503,12 @@ FactGem.wingman = (function namespace() {
             case "<=":
             case ">=":
             case "=~":
-                var leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                var leftArg = null;
+                if (this.comparisonVariable) {
+                    leftArg = this.comparisonVariable + "." + this.comparisonProperty;
+                } else {
+                    leftArg = this.comparisonProperty;
+                }
                 if (this.wrapWithHead) {
                     leftArg = 'HEAD(' + leftArg + ')';
                 }
@@ -549,6 +652,7 @@ FactGem.wingman = (function namespace() {
         this.orderByProperty = null;
         this.skip = 0;
         this.limit = null;
+        this.unwindClause = null;
         this.returns = [];
         this.orderDescending = false;
         this.distinct = false;
@@ -571,6 +675,16 @@ FactGem.wingman = (function namespace() {
      */
     Cypher.prototype.addOptionalMatch = function (match) {
         this.optionalMatches.push(match);
+        return this;
+    };
+
+    /**
+     * Adds an unwind clause to the query
+     * @param unwindClause
+     * @returns {Cypher}
+     */
+    Cypher.prototype.unwind = function (unwindClause) {
+        this.unwindClause = unwindClause;
         return this;
     };
 
@@ -641,6 +755,7 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Cypher.prototype.toString = function () {
+        var index;
         var value = 'match ' + this.matchClause.toString();
         if (this.optionalMatches.length) {
             value += ' optional match ';
@@ -652,6 +767,9 @@ FactGem.wingman = (function namespace() {
             if (index + 1 < this.optionalMatches.length) {
                 value = value + ", ";
             }
+        }
+        if (this.unwindClause) {
+            value += ' unwind ' + this.unwindClause.toString();
         }
         if (this.returns.length) {
             value += ' return ';
@@ -667,10 +785,16 @@ FactGem.wingman = (function namespace() {
                 }
             }
         }
-        if (this.orderByVariable) {
-            value += ' order by ' + this.orderByVariable;
+        if (this.orderByVariable || this.orderByProperty) {
+            value += ' order by ';
+            if (this.orderByVariable) {
+                value += this.orderByVariable;
+            }
             if (this.orderByProperty) {
-                value += '.' + this.orderByProperty;
+                if (this.orderByVariable) {
+                    value += '.';
+                }
+                value += this.orderByProperty;
             }
             if (this.orderDescending) {
                 value += ' desc'
@@ -694,6 +818,7 @@ FactGem.wingman = (function namespace() {
      * @returns {string}
      */
     Cypher.prototype.toParameterizedString = function () {
+        var index;
         var value = 'match ' + this.matchClause.toParameterizedString();
         if (this.optionalMatches.length) {
             value += ' optional match ';
@@ -705,6 +830,9 @@ FactGem.wingman = (function namespace() {
             if (index + 1 < this.optionalMatches.length) {
                 value = value + ", ";
             }
+        }
+        if (this.unwindClause) {
+            value += ' unwind ' + this.unwindClause.toString();
         }
         if (this.returns.length) {
             value += ' return ';
@@ -720,10 +848,16 @@ FactGem.wingman = (function namespace() {
                 }
             }
         }
-        if (this.orderByVariable) {
-            value += ' order by ' + this.orderByVariable;
+        if (this.orderByVariable || this.orderByProperty) {
+            value += ' order by ';
+            if (this.orderByVariable) {
+                value += this.orderByVariable;
+            }
             if (this.orderByProperty) {
-                value += '.' + this.orderByProperty;
+                if (this.orderByVariable) {
+                    value += '.';
+                }
+                value += this.orderByProperty;
             }
             if (this.orderDescending) {
                 value += ' desc'
@@ -742,6 +876,43 @@ FactGem.wingman = (function namespace() {
         return value;
     };
 
+    /**
+     * @memberof wingman
+     * Create a new, empty Unwind clause
+     * @constructor
+     */
+    function Unwind() {
+        this.unwindVariable = null;
+        this.label = null;
+    }
+
+    /**
+     * Sets the variable to be unwinded
+     * @param unwindVariable {String} The variable to be unwinded
+     * @returns {Unwind}
+     */
+    Unwind.prototype.unwind = function (unwindVariable) {
+        this.unwindVariable = unwindVariable;
+        return this;
+    };
+
+    /**
+     * Sets the label for the unwind variable
+     * @param label {String} The label for the unwind variable
+     * @returns {Unwind}
+     */
+    Unwind.prototype.as = function (label) {
+        this.label = label;
+        return this;
+    };
+
+    /**
+     * Generates the cypher for this unwind clause
+     * @returns {string}
+     */
+    Unwind.prototype.toString = function () {
+        return this.unwindVariable + ' as ' + this.label;
+    };
 
     /**
      * @memberof wingman
@@ -880,8 +1051,10 @@ FactGem.wingman = (function namespace() {
         Node: Node,
         Relationship: Relationship,
         Match: Match,
+        UsingIndex: UsingIndex,
         Pattern: Pattern,
         Where: Where,
+        Unwind: Unwind,
         Cypher: Cypher,
         Return: Return,
         Comparison: Comparison,
